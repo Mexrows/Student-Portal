@@ -1,5 +1,5 @@
-#ifndef COURSE.H
-#define COURSE.H
+#ifndef COURSE_H
+#define COURSE_H
 
 class Course
 {

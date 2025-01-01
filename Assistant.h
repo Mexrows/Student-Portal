@@ -1,5 +1,5 @@
-#ifndef ASISTANT.H
-#define ASISTANT.H
+#ifndef ASISTANT_H
+#define ASISTANT_H
 #include "Professor.h"
 #include "Student.h"
 
