@@ -10,7 +10,7 @@ class Professor: public Person
 
     public:
     Professor();
-    Professor(string, string, unsigned int);
+    Professor(string, string);
     Professor(const Professor &obj);
     ~Professor();
 };
@@ -22,7 +22,7 @@ Professor::Professor()
     this->sizeCourseProf = 0;
 }
 
-Professor::Professor(string password, string username, unsigned int)
+Professor::Professor(string password, string username)
 :Person(password, username)
 {
     this->sizeCourseProf = 0;
