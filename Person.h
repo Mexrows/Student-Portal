@@ -5,9 +5,11 @@ using namespace std;
 
 class Person
 {
+    private:
     string password;
     string username;
 
+    public:
     //Constructor and Destructors
     Person();
     Person(string, string);

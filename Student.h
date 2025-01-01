@@ -12,16 +12,25 @@ class Student: public Person
         unsigned short gpa;
         string* course; // Student Course
     
+    public:
     Student();
     ~Student();
     Student(const Student &obj);
-    Student(unsigned int, unsigned short);
+    Student(string, string, unsigned int, unsigned short);
 
 
 };
 
+Student::Student()
+:Person()
+{
+    this->id = 0;
+    this->gpa = 0;
+}
 
-Student::Student(unsigned int id, unsigned short gpa)
+
+Student::Student(string password, string username, unsigned int id, unsigned short gpa)
+:Person(password, username)
 {
     this->id = id;
     this->gpa = gpa;
