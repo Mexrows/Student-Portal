@@ -9,10 +9,11 @@ class Assistant: public Student, public Professor
     Assistant();
     ~Assistant();
     Assistant(const Assistant &obj);
-    Assistant(string, string);
+    Assistant(string, string, unsigned int, float);
 };
 
-Assistant::Assistant(string password, string username): Person(password,username)
+Assistant::Assistant(string password, string username, unsigned int id, float gpa)
+:Student(password, username, id, gpa)
 {
 
 };

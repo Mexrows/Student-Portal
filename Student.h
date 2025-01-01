@@ -9,14 +9,14 @@ class Student: public Person
 {
     private:
         unsigned int id;
-        unsigned short gpa;
+        float gpa;
         string* course; // Student Course
     
     public:
     Student();
     ~Student();
     Student(const Student &obj);
-    Student(string, string, unsigned int, unsigned short);
+    Student(string, string, unsigned int, float);
 
 
 };
@@ -29,7 +29,7 @@ Student::Student()
 }
 
 
-Student::Student(string password, string username, unsigned int id, unsigned short gpa)
+Student::Student(string password, string username, unsigned int id, float gpa)
 :Person(password, username)
 {
     this->id = id;
