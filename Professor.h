@@ -25,7 +25,8 @@ Professor::Professor()
 Professor::Professor(string password, string username, unsigned int)
 :Person(password, username)
 {
-    
+    this->sizeCourseProf = 0;
+    this->courseProf = nullptr;
 }
 
 Professor::Professor(const Professor &obj)
