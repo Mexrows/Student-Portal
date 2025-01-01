@@ -28,6 +28,8 @@ class Course
     }
 };
 
+
+
 Course::Course()
 {
     this->name = "";
