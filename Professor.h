@@ -28,4 +28,14 @@ Professor::Professor(string password, string username, unsigned int)
     
 }
 
+Professor::Professor(const Professor &obj)
+:Person(obj)
+{
+    this->sizeCourseProf = obj.sizeCourseProf;
+    this->courseProf = new string[this->sizeCourseProf];
+
+    for(unsigned short i = 0; i < this->sizeCourseProf; i++)
+        this->courseProf[i] = obj.courseProf[i];
+}
+
 #endif
