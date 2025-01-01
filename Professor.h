@@ -38,4 +38,11 @@ Professor::Professor(const Professor &obj)
         this->courseProf[i] = obj.courseProf[i];
 }
 
+Professor::~Professor()
+{
+    this->sizeCourseProf = 0;
+    delete[] courseProf;
+    courseProf = nullptr;
+}
+
 #endif

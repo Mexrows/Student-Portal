@@ -28,6 +28,11 @@ Student::Student()
     this->gpa = 0;
 }
 
+Student::Student(const Student &obj)
+:Person(obj)
+{
+    
+}
 
 Student::Student(string password, string username, unsigned int id, float gpa)
 :Person(password, username)
