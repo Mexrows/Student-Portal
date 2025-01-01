@@ -28,6 +28,22 @@ class Course
     }
 };
 
+Course::Course()
+{
+    this->name = "";
+    this->id = 0;
+}
+
+Course::~Course()
+{
+}
+
+Course::Course(const Course &obj)
+{
+    this->name = obj.name;
+    this->id = obj.id;
+}
+
 Course::Course(string name, int id)
 {
     this->name = name;
