@@ -1,11 +1,12 @@
 #ifndef PROFESSOR_H
 #define PROFESSOR_H
 #include "Person.h"
+#include "Course.h"
 
 class Professor: public Person
 {
     private:
-    string* courseProf;
+    Course* courseProf;
     unsigned int sizeCourseProf;
 
     public:
@@ -33,7 +34,7 @@ Professor::Professor(const Professor &obj)
 :Person(obj)
 {
     this->sizeCourseProf = obj.sizeCourseProf;
-    this->courseProf = new string[this->sizeCourseProf];
+    this->courseProf = new Course[this->sizeCourseProf];
 
     for(unsigned short i = 0; i < this->sizeCourseProf; i++)
         this->courseProf[i] = obj.courseProf[i];

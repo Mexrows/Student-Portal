@@ -21,7 +21,7 @@ Assistant::~Assistant()
 }
 
 Assistant::Assistant(const Assistant &obj)
-    : Student(obj), Professor(obj)
+:Student(obj), Professor(obj)
 {
 }
 

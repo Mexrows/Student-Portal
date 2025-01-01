@@ -2,6 +2,7 @@
 #define STUDENT_H
 #include <string>
 #include "Person.h"
+#include "Course.h"
 
 using namespace std;
 
@@ -10,7 +11,7 @@ class Student: public Person
     private:
     unsigned int id;
     float gpa;
-    string* courseStudent; // Student Course
+    Course* courseStudent; // Student Course
     unsigned sizeCourseStudent;
     
     public:
@@ -49,7 +50,7 @@ Student::Student(const Student &obj)
     this->gpa = obj.gpa;
     this->sizeCourseStudent = obj.sizeCourseStudent;
 
-    this->courseStudent = new string[this->sizeCourseStudent];
+    this->courseStudent = new Course[this->sizeCourseStudent];
 
     for(unsigned short i = 0; i < this->sizeCourseStudent; i++)
         this->courseStudent[i] = obj.courseStudent[i];

@@ -52,7 +52,4 @@ Course::Course(string name, int id)
     this->id = id;
 }
 
-
-
-
 #endif
