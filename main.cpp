@@ -33,4 +33,5 @@ void mainMenu()
 
     cout << "Please, press enter to continue!";
     cin.ignore();
+    cout << endl << endl;
 }
