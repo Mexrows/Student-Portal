@@ -15,6 +15,10 @@ class Person
     Person(string, string);
     Person(const Person &obj);
     ~Person();
+    void setPassword(string password);
+    void setUsername(string username);
+    string getPassword();
+    string getUsername();
 
     //Helper Functions
     bool login(); //Login
@@ -41,6 +45,26 @@ Person::Person(const Person &obj)
 Person::~Person()
 {
 
+}
+
+void Person::setPassword(string password)
+{
+    this->password = password;
+}
+
+void Person::setUsername(string username)
+{
+    this->username = username;
+}
+
+string Person::getPassword()
+{
+    return this->password;
+}
+
+string Person::getUsername()
+{
+    return this->username;
 }
 
 bool Person::login()

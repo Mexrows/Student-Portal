@@ -3,6 +3,8 @@
 #include "Person.h"
 #include "Course.h"
 
+
+
 class Professor: public Person
 {
     private:
@@ -14,12 +16,10 @@ class Professor: public Person
     Professor(string, string);
     Professor(string, string, Course*);
     Professor(const Professor &obj);
+    void setSizeCourseProf(unsigned int sizeCourseProf);
+    unsigned int getSizeCourseProf();
     ~Professor();
 
-    void setSizeCourseProf(unsigned int sizeCourseProf)
-    {
-        this->sizeCourseProf = sizeCourseProf;
-    }
 };
 
 Professor::Professor()
@@ -58,6 +58,150 @@ Professor::~Professor()
     this->sizeCourseProf = 0;
     delete[] courseProf;
     courseProf = nullptr;
+}
+
+void Professor::setSizeCourseProf(unsigned int sizeCourseProf)
+{
+    this->sizeCourseProf = sizeCourseProf;
+}
+
+unsigned int Professor::getSizeCourseProf()
+{
+    return this->sizeCourseProf;
+}
+
+void writeProfessorFile(const string &fileName, Professor prof);
+bool readProfessorFile(const string &fileName, string username, string password, Professor &prof);
+void professorPanel(Professor &professor, bool &isSystemOpen);
+
+/*
+1.username
+2.password
+3.sizeOfCourses
+4.Course ID
+*/
+void writeProfessorFile(const string &fileName, Professor prof)
+{
+    ofstream file(fileName, ios::binary | ios::app);
+
+    if(file.is_open())
+    {
+        size_t size = prof.getUsername().size();
+        file.write((char*)&size, sizeof(size_t));
+        file.write(prof.getUsername().data(), size);
+
+        size = prof.getPassword().size();
+        file.write((char*)&size, sizeof(size_t));
+        file.write(prof.getPassword().data(), size);
+
+        unsigned int sizeCourseProf = prof.getSizeCourseProf();
+        file.write((char*)&sizeCourseProf, sizeof(unsigned int));
+
+        int courseID = 0;
+        for(int i = 0; i<sizeCourseProf; i++)
+        {
+            courseID = prof.courseProf[i].getId();
+            file.write((char*)&courseID, sizeof(int));
+        }
+        file.close();
+    }
+
+    else
+        cout << "Couldn't open the file!" << endl;
+}
+
+bool readProfessorFile(const string &fileName, string username, string password, Professor &prof)
+{
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+
+        //Username
+        size_t sizeUsername = *((size_t*)p);
+        p+=sizeof(size_t);
+
+        string usernameString(p, sizeUsername);
+        p+=sizeUsername;
+
+        //Password
+        size_t sizePassword = *((size_t*)p);
+        p += sizeof(size_t);
+
+        string passwordString(p, sizePassword);
+        p += sizePassword;
+
+        //Check username and password
+        bool isExist = false;
+        if (usernameString == username && passwordString == password)
+        {
+            isExist = true;
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            prof.setUsername(usernameString);
+            prof.setPassword(passwordString);
+            prof.setSizeCourseProf(sizeOfCourses);
+            prof.courseProf = new Course[sizeOfCourses];
+            for(int i = 0; i<sizeOfCourses; i++)
+            {
+                int id = *((unsigned int*)p);
+                p+=sizeof(int);
+                prof.courseProf[i].setId(id);
+            }
+            return isExist;
+        }
+        else
+            return isExist;
+        delete[] mBlock;
+        
+            
+    }
+    else
+        cout << "Couldn't open the file!" << endl;
+}
+
+void professorPanel(Professor &professor, bool &isSystemOpen)
+{
+    cout << "******************************************" << endl;
+    cout << "Welcome to Professor Panel!" << endl;
+    cout << "******************************************" << endl;
+    cout << "1. View Courses" << endl;
+    cout << "2. Back to main menu" << endl;
+    cout << "3. Exit the system" << endl;
+
+    unsigned short number = 0;
+    do
+    {
+        cout << "Enter the yout choice: ";
+        cin >> number;
+    } while (number < 0  || number > 3);
+    
+    if(number == 1)
+    {
+        cout << "Courses: " << endl;
+        for(int i = 0; i<professor.getSizeCourseProf(); i++)
+        {
+            cout << "Course ID: " << professor.courseProf[i].getId() << endl;
+        }
+        return professorPanel(professor, isSystemOpen);
+    }
+
+    if(number == 2)
+    {
+        
+    }
+
+    if(number == 3)
+    {
+        isSystemOpen = false;
+    }
 }
 
 #endif
