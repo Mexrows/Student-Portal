@@ -11,7 +11,8 @@ using namespace std;
 
 void mainMenu(bool &isSystemOpen);
 void loginScreen(bool &isSystemOpen);
-void writeFile(string fileName, string username, string password);
+void writeFile(const string &fileName, string username, string password);
+bool readFileAdmin(const string &fileName, string username, string password);
 
 int main()
 {
@@ -87,7 +88,7 @@ void loginScreen(bool &isSystemOpen)
     }
 }
 
-void writeFile(string fileName, string username, string password)
+void writeFile(const string &fileName, string username, string password)
 {
     ofstream file(fileName, ios::binary | ios::app);
 
@@ -104,4 +105,30 @@ void writeFile(string fileName, string username, string password)
 
     else
         cout << "Couldn't open the file!" << endl;
+}
+
+bool readFileAdmin(const string &fileName, string username, string password)
+{
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        char *p = mBlock;
+
+        size_t sizeUsername = *((size_t*)p);
+        p+=sizeof(size_t);
+
+        char* usernameChar = new char[sizeUsername];
+        file.read(usernameChar, sizeUsername);
+        string usernameString = usernameChar;
+
+
+
+
+        delete[] usernameChar;
+    }
+    
 }
