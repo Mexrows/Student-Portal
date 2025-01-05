@@ -11,9 +11,12 @@ using namespace std;
 
 void mainMenu(bool &isSystemOpen);
 void loginScreen(bool &isSystemOpen);
+void writeFile(string fileName, string username, string password);
 
 int main()
 {
+    string filename = "admindb.bin";
+
     bool isSystemOpen = true;
 
     do
@@ -82,4 +85,23 @@ void loginScreen(bool &isSystemOpen)
             isSystemOpen = false;
             break;
     }
+}
+
+void writeFile(string fileName, string username, string password)
+{
+    ofstream file(fileName, ios::binary | ios::app);
+
+    if(file.is_open())
+    {
+        size_t size = username.size();
+        file.write((char*)&size, sizeof(size_t));
+        file.write(username.data(), size);
+
+        size_t size = password.size();
+        file.write((char*)&size, sizeof(size_t));
+        file.write(password.data(), size);
+    }
+
+    else
+        cout << "Couldn't open the file!" << endl;
 }
