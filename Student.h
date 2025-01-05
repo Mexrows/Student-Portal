@@ -11,17 +11,27 @@ class Student: public Person
     private:
     unsigned int id;
     float gpa;
-    Course* courseStudent; // Student Course
-    unsigned sizeCourseStudent;
+    unsigned int sizeCourseStudent;
     
     public:
+    Course* courseStudent; // Student Course
     Student();
     ~Student();
     Student(const Student &obj);
     Student(string, string, unsigned int, float);
+    void setId(unsigned int id);
+    void setGpa(float gpa);
+    void setSizeCourseStudent(unsigned int sizeCourseStudent);
+    unsigned int getId();
+    float getGpa();
+    unsigned int getSizeCourseStudent();
 
 
 };
+
+void writeStudentFile(const string &fileName, Student student);
+bool readStudentFile(const string &fileName, string username, string password, Student &student);
+void studentPanel(Student &student, bool &isSystemOpen);
 
 
 
@@ -64,5 +74,203 @@ Student::Student(string password, string username, unsigned int id, float gpa)
     this->sizeCourseStudent = 0;
     this->courseStudent = nullptr;
 };
+
+void Student::setId(unsigned int id)
+{
+    this->id = id;
+}
+
+void Student::setGpa(float gpa)
+{
+    this->gpa = gpa;
+}
+
+void Student::setSizeCourseStudent(unsigned int sizeCourseStudent)
+{
+    this->sizeCourseStudent = sizeCourseStudent;
+}
+
+unsigned int Student::getId()
+{
+    return this->id;
+}
+
+float Student::getGpa()
+{
+    return this->gpa;
+}
+
+unsigned int Student::getSizeCourseStudent()
+{
+    return this->sizeCourseStudent;
+}
+
+/*
+1.username
+2.password
+3.id
+4.gpa
+5.sizeOfCourses
+6.Course ID
+*/
+void writeStudentFile(const string &fileName, Student student)
+{
+    ofstream file(fileName, ios::binary | ios::app);
+
+    if(file.is_open())
+    {
+        size_t size = student.getUsername().size();
+        file.write((char*)&size, sizeof(size_t));
+        file.write(student.getUsername().data(), size);
+
+        size = student.getPassword().size();
+        file.write((char*)&size, sizeof(size_t));
+        file.write(student.getPassword().data(), size);
+
+        unsigned int id = student.getId();
+        file.write((char*)&id, sizeof(unsigned int));
+
+        float gpa = student.getGpa();
+        file.write((char*)&gpa, sizeof(float));
+
+        unsigned int sizeCourseProf = student.getSizeCourseStudent();
+        file.write((char*)&sizeCourseProf, sizeof(unsigned int));
+
+        int courseID = 0;
+        for(int i = 0; i<sizeCourseProf; i++)
+        {
+            courseID = student.courseStudent[i].getId();
+            file.write((char*)&courseID, sizeof(int));
+        }
+        file.close();
+    }
+
+    else
+        cout << "Couldn't open the file!" << endl;
+}
+
+bool readStudentFile(const string &fileName, string username, string password, Student &student)
+{
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = mBlock + fileSize;
+        bool isExist = false;
+
+        while(p < end)
+        {
+        //Username
+        size_t sizeUsername = *((size_t*)p);
+        p+=sizeof(size_t);
+
+        string usernameString(p, sizeUsername);
+        p+=sizeUsername;
+
+        //Password
+        size_t sizePassword = *((size_t*)p);
+        p += sizeof(size_t);
+
+        string passwordString(p, sizePassword);
+        p += sizePassword;
+
+        //Check username and password
+        if (usernameString == username && passwordString == password)
+        {
+            isExist = true;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            student.setUsername(usernameString);
+            student.setPassword(passwordString);
+            student.setId(id);
+            student.setGpa(gpa);
+            student.setSizeCourseStudent(sizeOfCourses);
+            student.courseStudent = new Course[sizeOfCourses];
+            for(int i = 0; i<sizeOfCourses; i++)
+            {
+                int courseId = *((int*)p);
+                p+=sizeof(int);
+                student.courseStudent[i].setId(courseId);
+            }
+            break;
+        }
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            p += sizeOfCourses * sizeof(int);
+        }
+        delete[] mBlock;
+        return isExist;
+                
+    }
+    else
+        cout << "Couldn't open the file!" << endl;
+}
+
+void studentPanel(Student &student, bool &isSystemOpen)
+{
+    cout << "******************************************" << endl;
+    cout << "Welcome to Student Panel!" << endl;
+    cout << "******************************************" << endl;
+    cout << "1. View Courses" << endl;
+    cout << "2. View Personal Information" << endl;
+    cout << "3. Back to main menu" << endl;
+    cout << "4. Exit the system" << endl;
+
+    unsigned short number = 0;
+    do
+    {
+        cout << "Enter the yout choice: ";
+        cin >> number;
+    } while (number < 0  || number > 4);
+    
+    if(number == 1)
+    {
+        cout << "Courses: " << endl;
+        for(int i = 0; i<student.getSizeCourseStudent(); i++)
+        {
+            cout << "Course ID: " << student.courseStudent[i].getId() << endl;
+        }
+        return studentPanel(student, isSystemOpen);
+    }
+
+    if(number == 2)
+    {
+        cout << "Student ID: " << student.getId() << endl;
+        cout << "Student Username: " << student.getUsername() << endl;
+        cout << "Student GPA: " << student.getGpa() << endl;
+        return studentPanel(student, isSystemOpen);
+    }
+
+    if(number == 3)
+    {
+
+    }
+
+    if(number == 4)
+    {
+        isSystemOpen = false;
+    }
+}
 
 #endif

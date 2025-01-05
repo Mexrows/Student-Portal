@@ -49,7 +49,8 @@ void loginScreen(bool &isSystemOpen)
     cout << "2. Professor Login" << endl;
     cout << "3. Assistant Login" << endl;
     cout << "4. Student Login" << endl;
-    cout << "5. Exit the system" << endl;
+    cout << "5. Courses" << endl;
+    cout << "6. Exit the system" << endl;
     cout << "******************************************" << endl;
 
     unsigned short number = 0;
@@ -77,7 +78,7 @@ void loginScreen(bool &isSystemOpen)
             cout << endl;
             isExist = readFileAdmin("admindb.bin", username, password);
             if(isExist)
-                adminPanel();
+                adminPanel(isSystemOpen);
             else
             {
                 cout << "Username or password is wrong!" << endl << endl;
@@ -111,10 +112,29 @@ void loginScreen(bool &isSystemOpen)
     
     else if(number == 4)
     {
-        cout << "Welcome to Student Login!";
+        cout << "Welcome to Student Login!" << endl;
+            cout << "Username: ";
+            cin >> username;
+            cout << "Password: ";
+            cin >> password;
+            cout << endl;
+            Student student;
+            isExist = readStudentFile("studentdb.bin", username, password, student);
+            if(isExist)
+                studentPanel(student, isSystemOpen);
+            else
+            {
+                cout << "Username or password is wrong!" << endl << endl;
+                loginScreen(isSystemOpen);
+            }
+    }
+
+    else if(number == 5)
+    {
+        coursePanel();
     }
     
-    else if(number == 5)
+    else if(number == 6)
     {
         isSystemOpen = false;
     }
