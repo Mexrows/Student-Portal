@@ -107,6 +107,7 @@ void writeFile(const string &fileName, string username, string password)
         cout << "Couldn't open the file!" << endl;
 }
 
+
 bool readFileAdmin(const string &fileName, string username, string password)
 {
     ifstream file(fileName, ios::binary | ios::ate);
@@ -118,17 +119,32 @@ bool readFileAdmin(const string &fileName, string username, string password)
         file.read(mBlock, fileSize);
         char *p = mBlock;
 
+        //Username
         size_t sizeUsername = *((size_t*)p);
         p+=sizeof(size_t);
 
-        char* usernameChar = new char[sizeUsername];
-        file.read(usernameChar, sizeUsername);
-        string usernameString = usernameChar;
+        string usernameString(p, sizeUsername);
+        p+=sizeUsername;
 
+        //Password
+        size_t sizePassword = *((size_t*)p);
+        p+=sizeof(size_t);
 
+        string passwordString(p, sizePassword);
+        p+=sizePassword;
 
-
-        delete[] usernameChar;
+        //Check username and password
+        bool isExist = false;
+        if (usernameString == username && passwordString == password)
+        {
+            isExist = true;
+        }
+        return isExist;
+        delete[] mBlock;
+    }
+    else
+    {
+        cout << "File Error!";
     }
     
 }
