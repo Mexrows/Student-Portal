@@ -54,13 +54,19 @@ bool Person::reg()
     cout << "Enter your password: ";
     getline(cin, regPassword);
 
-    bool verified = false;
+    bool verified = true;
 
-    if(regName == this->username)
-        verified = true;
+    if(regName != this->username)
+    {
+        verified = false;
+        return verified;
+    }
 
     if(regPassword != this->password)
+    {
         verified = false;
+        return verified;
+    }
 
     return verified;
 }
