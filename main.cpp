@@ -76,6 +76,7 @@ void loginScreen(bool &isSystemOpen)
             break;
         case 6:
             isSystemOpen = false;
-            break;
+            break; 
+            
     }
 }
