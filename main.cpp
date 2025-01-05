@@ -16,6 +16,8 @@ int main()
 {
     bool isSystemOpen = true;
 
+    Admin admin("admin", "admin");
+
     do
     {
         mainMenu(isSystemOpen);
