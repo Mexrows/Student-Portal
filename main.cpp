@@ -128,10 +128,10 @@ bool readFileAdmin(const string &fileName, string username, string password)
 
         //Password
         size_t sizePassword = *((size_t*)p);
-        p+=sizeof(size_t);
+        p += sizeof(size_t);
 
         string passwordString(p, sizePassword);
-        p+=sizePassword;
+        p += sizePassword;
 
         //Check username and password
         bool isExist = false;
@@ -145,6 +145,7 @@ bool readFileAdmin(const string &fileName, string username, string password)
     else
     {
         cout << "File Error!";
+        return false;
     }
     
 }
