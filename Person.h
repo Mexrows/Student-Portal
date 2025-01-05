@@ -45,24 +45,24 @@ Person::~Person()
 
 bool Person::login()
 {
-    string regName;
-    string regPassword;
+    string logName;
+    string logPassword;
 
     cout << "Enter your username: ";
-    getline(cin, regName);
+    getline(cin, logName);
 
     cout << "Enter your password: ";
-    getline(cin, regPassword);
+    getline(cin, logPassword);
 
     bool verified = true;
 
-    if(regName != this->username)
+    if(logName != this->username)
     {
         verified = false;
         return verified;
     }
 
-    if(regPassword != this->password)
+    if(logPassword != this->password)
     {
         verified = false;
         return verified;
