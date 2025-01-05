@@ -105,3 +105,4 @@ void writeFile(string fileName, string username, string password)
     else
         cout << "Couldn't open the file!" << endl;
 }
+
