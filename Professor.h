@@ -126,40 +126,41 @@ bool readProfessorFile(const string &fileName, string username, string password,
 
         while(p < end)
         {
-        //Username
-        size_t sizeUsername = *((size_t*)p);
-        p+=sizeof(size_t);
+            //Username
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
 
-        string usernameString(p, sizeUsername);
-        p+=sizeUsername;
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
 
-        //Password
-        size_t sizePassword = *((size_t*)p);
-        p += sizeof(size_t);
+            //Password
+            size_t sizePassword = *((size_t*)p);
+            p += sizeof(size_t);
 
-        string passwordString(p, sizePassword);
-        p += sizePassword;
+            string passwordString(p, sizePassword);
+            p += sizePassword;
 
-        //Check username and password
-        if (usernameString == username && passwordString == password)
-        {
-            isExist = true;
-
-            unsigned int sizeOfCourses = *((unsigned int*)p);
-            p+=sizeof(unsigned int);
-
-            prof.setUsername(usernameString);
-            prof.setPassword(passwordString);
-            prof.setSizeCourseProf(sizeOfCourses);
-            prof.courseProf = new Course[sizeOfCourses];
-            for(int i = 0; i<sizeOfCourses; i++)
+            //Check username and password
+            if (usernameString == username && passwordString == password)
             {
-                int id = *((unsigned int*)p);
-                p+=sizeof(int);
-                prof.courseProf[i].setId(id);
+                isExist = true;
+
+                unsigned int sizeOfCourses = *((unsigned int*)p);
+                p+=sizeof(unsigned int);
+
+                prof.setUsername(usernameString);
+                prof.setPassword(passwordString);
+                prof.setSizeCourseProf(sizeOfCourses);
+                prof.courseProf = new Course[sizeOfCourses];
+                for(int i = 0; i<sizeOfCourses; i++)
+                {
+                    int id = *((unsigned int*)p);
+                    p+=sizeof(int);
+                    prof.courseProf[i].setId(id);
+                }
+                break;
             }
-            break;
-        }
+            
             unsigned int sizeOfCourses = *((unsigned int*)p);
             p += sizeof(unsigned int);
 
