@@ -47,16 +47,19 @@ void loginScreen(bool &isSystemOpen)
     cout << "2. Professor Login" << endl;
     cout << "3. Assistant Login" << endl;
     cout << "4. Student Login" << endl;
-    cout << "5. Back to the main menu" << endl;
-    cout << "6. Exit the system" << endl;
+    cout << "5. Exit the system" << endl;
     cout << "******************************************" << endl;
 
-    unsigned short number = 0;
+    unsigned short number = 1;
     do
     {
+        if(number > 5 || number < 0)
+        {
+            cout << "You should enter the number between 1 and 5" << endl;
+        }
         cout << "Enter the your choice: ";
         cin >> number;
-    } while (number>8 && number<0);
+    } while (number>5 || number<0);
     
     switch(number)
     {
@@ -73,9 +76,9 @@ void loginScreen(bool &isSystemOpen)
             cout << "Welcome to Student Login!";
             break;
         case 5:
-            mainMenu(isSystemOpen);
+            isSystemOpen = false;
             break;
-        case 6:
+        default:
             isSystemOpen = false;
             break;
     }
