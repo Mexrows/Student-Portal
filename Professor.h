@@ -121,7 +121,11 @@ bool readProfessorFile(const string &fileName, string username, string password,
         file.read(mBlock, fileSize);
         file.close();
         char* p = mBlock;
+        char* end = mBlock + fileSize;
+        bool isExist = false;
 
+        while(p < end)
+        {
         //Username
         size_t sizeUsername = *((size_t*)p);
         p+=sizeof(size_t);
@@ -137,7 +141,6 @@ bool readProfessorFile(const string &fileName, string username, string password,
         p += sizePassword;
 
         //Check username and password
-        bool isExist = false;
         if (usernameString == username && passwordString == password)
         {
             isExist = true;
@@ -155,13 +158,16 @@ bool readProfessorFile(const string &fileName, string username, string password,
                 p+=sizeof(int);
                 prof.courseProf[i].setId(id);
             }
-            return isExist;
+            break;
         }
-        else
-            return isExist;
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            p += sizeOfCourses * sizeof(int);
+        }
         delete[] mBlock;
-        
-            
+        return isExist;
+                
     }
     else
         cout << "Couldn't open the file!" << endl;
