@@ -15,6 +15,9 @@ class Person
     Person(string, string);
     Person(const Person &obj);
     ~Person();
+
+    //Helper Functions
+    bool reg(); //Register
 };
 
 Person::Person()
@@ -38,6 +41,20 @@ Person::Person(const Person &obj)
 Person::~Person()
 {
 
+}
+
+bool Person::reg()
+{
+    string regName;
+    string regPassword;
+
+    cout << "Enter your username: ";
+    getline(cin, regName);
+
+    cout << "Enter your password: ";
+    getline(cin, regPassword);
+
+    
 }
 
 #endif
