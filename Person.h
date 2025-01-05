@@ -17,7 +17,7 @@ class Person
     ~Person();
 
     //Helper Functions
-    bool reg(); //Register
+    bool login(); //Login
 };
 
 Person::Person()
@@ -43,7 +43,7 @@ Person::~Person()
 
 }
 
-bool Person::reg()
+bool Person::login()
 {
     string regName;
     string regPassword;
