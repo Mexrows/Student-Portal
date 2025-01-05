@@ -17,13 +17,9 @@ int main()
 
     do
     {
-<<<<<<< Updated upstream
         mainMenu();
         loginScreen();
 
-=======
-        mainMenu(isSystemOpen);
->>>>>>> Stashed changes
     } while (isSystemOpen);
     
 
