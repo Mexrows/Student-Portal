@@ -13,6 +13,7 @@ void mainMenu(bool &isSystemOpen);
 void loginScreen(bool &isSystemOpen);
 void writeFile(const string &fileName, string username, string password);
 bool readFileAdmin(const string &fileName, string username, string password);
+void adminPanel();
 
 int main()
 {
@@ -57,7 +58,7 @@ void loginScreen(bool &isSystemOpen)
     cout << "5. Exit the system" << endl;
     cout << "******************************************" << endl;
 
-    unsigned short number = 1;
+    unsigned short number = 0;
     do
     {
         if(number > 5 || number < 0)
@@ -151,4 +152,58 @@ bool readFileAdmin(const string &fileName, string username, string password)
         return false;
     }
     
+    return false;
 }
+
+void adminPanel()
+{
+    cout << "******************************************" << endl;
+    cout << "Welcome to Admin Panel!" << endl;
+    cout << "******************************************" << endl;
+    cout << "1. Add Professor" << endl;
+    cout << "2. Add Assistant" << endl;
+    cout << "3. Add Student" << endl;
+
+    unsigned short number = 0;
+    
+    do
+    {
+        if(number > 3 || number < 0)
+        {
+            cout << "Enter the number between 1 and 3" << endl;
+        }
+        cout << "Enter the choice: ";
+        cin >> number;
+    } while (number > 3 || number < 0);
+    
+    if(number == 1)
+    {
+        string username = "";
+        string password = "";
+        unsigned int numberOfCourse = 0;
+        int courseID = 0;
+        
+        cout << "Write Username" << endl;
+        cin >> username;
+        cout << "Write Password" << endl;
+        cin >> password;
+        cout << "Write number of courses" << endl;
+        cin >> numberOfCourse;
+
+        Course* courses = new Course[numberOfCourse];
+        for(int i = 0; i<numberOfCourse; i++)
+        {
+            cout << "Enter the " << i+1 << ". course ";
+            cin >> courseID;
+            courses[i].setId(courseID);
+        }
+           
+        Professor p1(password, username);
+        p1.courseProf = courses;
+        p1.setSizeCourseProf(numberOfCourse);
+        delete[] courses;
+
+        
+    }
+}
+            

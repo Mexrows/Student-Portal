@@ -6,14 +6,20 @@
 class Professor: public Person
 {
     private:
-    Course* courseProf;
     unsigned int sizeCourseProf;
 
     public:
+    Course* courseProf;
     Professor();
     Professor(string, string);
+    Professor(string, string, Course*);
     Professor(const Professor &obj);
     ~Professor();
+
+    void setSizeCourseProf(unsigned int sizeCourseProf)
+    {
+        this->sizeCourseProf = sizeCourseProf;
+    }
 };
 
 Professor::Professor()
@@ -38,6 +44,13 @@ Professor::Professor(const Professor &obj)
 
     for(unsigned short i = 0; i < this->sizeCourseProf; i++)
         this->courseProf[i] = obj.courseProf[i];
+}
+
+Professor::Professor(string password, string username, Course* courses)
+:Person(password, username)
+{
+    this->courseProf = courses;
+
 }
 
 Professor::~Professor()

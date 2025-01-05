@@ -26,6 +26,11 @@ class Course
     {
         return this->id;
     }
+
+    void setId(int id)
+    {
+        this->id = id;
+    }
 };
 
 
