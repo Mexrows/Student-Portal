@@ -9,7 +9,8 @@
 #include "Student.h"
 using namespace std;
 
-void mainMenu();
+void mainMenu(bool &isSystemOpen);
+void loginScreen(bool &isSystemOpen);
 
 int main()
 {
@@ -17,7 +18,7 @@ int main()
 
     do
     {
-        mainMenu();
+        mainMenu(isSystemOpen);
 
     } while (isSystemOpen);
     
@@ -72,11 +73,10 @@ void loginScreen(bool &isSystemOpen)
             cout << "Welcome to Student Login!";
             break;
         case 5:
-            mainMenu();
+            mainMenu(isSystemOpen);
             break;
         case 6:
             isSystemOpen = false;
-            break; 
-            
+            break;
     }
 }
