@@ -36,6 +36,7 @@ void mainMenu(bool &isSystemOpen)
     cin.ignore();
     cout << endl << endl;
     loginScreen(isSystemOpen);
+    
 }
 
 void loginScreen(bool &isSystemOpen)
