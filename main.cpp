@@ -18,7 +18,6 @@ int main()
     do
     {
         mainMenu();
-        loginScreen();
 
     } while (isSystemOpen);
     
