@@ -18,6 +18,9 @@ int main()
 {
     string filename = "admindb.bin";
 
+    writeFile(filename, "s2mle100sh", "1234");
+    readFileAdmin(filename, "s2mle100sh", "1234");
+
     bool isSystemOpen = true;
 
     do
@@ -98,7 +101,7 @@ void writeFile(const string &fileName, string username, string password)
         file.write((char*)&size, sizeof(size_t));
         file.write(username.data(), size);
 
-        size_t size = password.size();
+        size = password.size();
         file.write((char*)&size, sizeof(size_t));
         file.write(password.data(), size);
     }
