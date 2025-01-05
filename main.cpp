@@ -201,7 +201,6 @@ void adminPanel()
         Professor p1(password, username);
         p1.courseProf = courses;
         p1.setSizeCourseProf(numberOfCourse);
-        delete[] courses;
 
         
     }
