@@ -71,6 +71,7 @@ void Course::setName(string name)
 void writeCourseFile(const string &fileName, Course course);
 bool readCourseFile(const string &fileName, int id, Course &course);
 void coursePanel();
+Course* readAllCourseFile(const string &fileName, unsigned int &numberOfCourses, bool &isExist);
 
 /*
 1. Name
@@ -159,13 +160,73 @@ void coursePanel()
     
     if(number == 1)
     {
-        Course c1("c++", 1);
-        bool isExist = readCourseFile("coursedb.bin", c1.getId(), c1);
+        unsigned int numberOfCourses = 0;
+        bool isExist = false;
+        Course* allCourses = readAllCourseFile("coursedb.bin", numberOfCourses, isExist);
         if(isExist)
         {
-            cout << c1.getName() << " " << c1.getId();
+            for(int i = 0; i<numberOfCourses; i++)
+            {
+                cout << i+1 << ". Course: "<< allCourses[i].getName() << ", " << allCourses[i].getId() << endl;
+            }
         }
+        else
+            cout << "Course not found!" << endl;
     }
 
+}
+Course *readAllCourseFile(const string &fileName, unsigned int &numberOfCourses, bool &isExist)
+{
+    Course* tab;
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = mBlock + fileSize;
+        if(fileSize != 0)
+            isExist = true;
+
+        while(p < end)
+        {
+        //Course Name
+        size_t sizeName = *((size_t*)p);
+        p+=sizeof(size_t);
+
+        string nameString(p, sizeName);
+        p+=sizeName;
+
+        //Course ID
+        int id = *((int*)p);
+        p += sizeof(int);
+        numberOfCourses++;
+        }
+
+        p = mBlock;
+        tab = new Course[numberOfCourses];
+        for(int i = 0; i<numberOfCourses; i++)
+        {
+            //Course Name
+            size_t sizeName = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string nameString(p, sizeName);
+            p+=sizeName;
+
+            //Course ID
+            int id = *((int*)p);
+            p += sizeof(int);
+            tab[i].setId(id);
+            tab[i].setName(nameString);
+        }
+        delete[] mBlock;
+    }
+    else
+        cout << "Couldn't open the file!" << endl;
+    return tab;
 }
 #endif

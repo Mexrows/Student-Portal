@@ -8,7 +8,7 @@
 
 void writeFile(const string &fileName, string username, string password);
 bool readFileAdmin(const string &fileName, string username, string password);
-void adminPanel();
+void adminPanel(bool &isSystemOpen);
 
 class Admin: public Person
 {
