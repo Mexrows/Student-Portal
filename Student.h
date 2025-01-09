@@ -30,8 +30,10 @@ class Student: public Person
 };
 
 void writeStudentFile(const string &fileName, Student student);
-bool readStudentFile(const string &fileName, string username, string password, Student &student);
+bool readStudentFile(const string &fileName, string username, string password, Student &student, bool isExistCheck);
+Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent, int courseID);
 void studentPanel(Student &student, bool &isSystemOpen);
+Student *readAllStudents(const string &fileName, int &numberOfStudent);
 
 
 
@@ -149,7 +151,7 @@ void writeStudentFile(const string &fileName, Student student)
         cout << "Couldn't open the file!" << endl;
 }
 
-bool readStudentFile(const string &fileName, string username, string password, Student &student)
+bool readStudentFile(const string &fileName, string username, string password, Student &student, bool isExistCheck)
 {
     ifstream file(fileName, ios::binary | ios::ate);
     if(file.is_open())
@@ -171,6 +173,12 @@ bool readStudentFile(const string &fileName, string username, string password, S
 
         string usernameString(p, sizeUsername);
         p+=sizeUsername;
+
+        if(isExistCheck)
+        {
+            if(usernameString == username)
+                return isExistCheck;
+        }
 
         //Password
         size_t sizePassword = *((size_t*)p);
@@ -209,7 +217,7 @@ bool readStudentFile(const string &fileName, string username, string password, S
         }
 
             unsigned int id = *((unsigned int*)p);
-            p += sizeof(unsigned int);
+            p += sizeof(int);
 
             float gpa = *((float*)p);
             p += sizeof(float);
@@ -225,6 +233,101 @@ bool readStudentFile(const string &fileName, string username, string password, S
     }
     else
         cout << "Couldn't open the file!" << endl;
+}
+
+Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent, int courseID)
+{
+    Student* tab;
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = mBlock + fileSize;
+
+        while(p < end)
+        {
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p += sizeof(size_t);
+
+            string passwordString(p, sizePassword);
+            p += sizePassword;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            for(int i = 0; i<sizeOfCourses; i++)
+            {
+                int courseId = *((int*)p);
+                p+=sizeof(int);
+                if(courseId == courseID)
+                    numberOfStudent++;
+            }
+        }
+
+        tab = new Student[numberOfStudent];
+        p = mBlock;
+        end = mBlock + fileSize;
+        int indexStudent = 0;
+
+        while(p < end)
+        {
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p += sizeof(size_t);
+
+            string passwordString(p, sizePassword);
+            p += sizePassword;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+            
+            for(int i = 0; i<sizeOfCourses; i++)
+            {
+                int courseId = *((int*)p);
+                p+=sizeof(int);
+                if(courseId = courseID)
+                {
+                    tab[indexStudent].setUsername(usernameString);
+                    tab[indexStudent].setId(id);
+                    indexStudent++;
+                }
+
+            }
+        }
+        delete[] mBlock;
+        return tab;
+    }
+    else
+        cout << "Couldn't open the file!" << endl;
+
 }
 
 void studentPanel(Student &student, bool &isSystemOpen)
@@ -273,4 +376,95 @@ void studentPanel(Student &student, bool &isSystemOpen)
     }
 }
 
+Student *readAllStudents(const string &fileName, int &numberOfStudent)
+{
+    Student* tab;
+
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {   
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = fileSize + mBlock;
+
+        while(p < end)
+        {
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string passwordString(p, sizePassword);
+            p+=sizePassword;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            p+=sizeOfCourses * sizeof(int);
+            numberOfStudent++;
+        }
+
+        p = mBlock;
+        end = fileSize + mBlock;
+        tab = new Student[numberOfStudent];
+
+        for(int i = 0; i<numberOfStudent; i++)
+        {
+           
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string passwordString(p, sizePassword);
+            p+=sizePassword;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            tab[i].setUsername(usernameString);
+            tab[i].setPassword(passwordString);
+            tab[i].setId(id);
+            tab[i].setGpa(gpa);
+            tab[i].setSizeCourseStudent(sizeOfCourses);
+            tab[i].courseStudent = new Course[sizeOfCourses];
+            for(int j = 0; j<sizeOfCourses; j++)
+            {
+                int id = *((int*)p);
+                p+=sizeof(int);
+                tab[i].courseStudent[j].setId(id);
+            }
+
+        }
+        delete[] mBlock;
+    }
+    else
+        cout << "Couldn't open the file!" << endl;
+
+    return tab;
+}
 #endif

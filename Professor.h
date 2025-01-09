@@ -71,8 +71,9 @@ unsigned int Professor::getSizeCourseProf()
 }
 
 void writeProfessorFile(const string &fileName, Professor prof);
-bool readProfessorFile(const string &fileName, string username, string password, Professor &prof);
+bool readProfessorFile(const string &fileName, string username, string password, Professor &prof, bool isExistCheck);
 void professorPanel(Professor &professor, bool &isSystemOpen);
+Professor* readAllProfessor(const string &fileName, int &numberOfProfessor);
 
 /*
 1.username
@@ -110,7 +111,7 @@ void writeProfessorFile(const string &fileName, Professor prof)
         cout << "Couldn't open the file!" << endl;
 }
 
-bool readProfessorFile(const string &fileName, string username, string password, Professor &prof)
+bool readProfessorFile(const string &fileName, string username, string password, Professor &prof, bool isExistCheck)
 {
     ifstream file(fileName, ios::binary | ios::ate);
     if(file.is_open())
@@ -133,6 +134,12 @@ bool readProfessorFile(const string &fileName, string username, string password,
             string usernameString(p, sizeUsername);
             p+=sizeUsername;
 
+            if(isExistCheck)
+            {
+                if(username == usernameString)
+                    return isExistCheck;
+            }
+
             //Password
             size_t sizePassword = *((size_t*)p);
             p += sizeof(size_t);
@@ -154,7 +161,7 @@ bool readProfessorFile(const string &fileName, string username, string password,
                 prof.courseProf = new Course[sizeOfCourses];
                 for(int i = 0; i<sizeOfCourses; i++)
                 {
-                    int id = *((unsigned int*)p);
+                    int id = *((int*)p);
                     p+=sizeof(int);
                     prof.courseProf[i].setId(id);
                 }
@@ -209,6 +216,84 @@ void professorPanel(Professor &professor, bool &isSystemOpen)
     {
         isSystemOpen = false;
     }
+}
+
+Professor *readAllProfessor(const string &fileName, int &numberOfProfessor)
+{
+    Professor* tab;
+
+    ifstream file(fileName, ios::binary | ios::ate);
+    if(file.is_open())
+    {   
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char[fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = fileSize + mBlock;
+
+        while(p < end)
+        {
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string passwordString(p, sizePassword);
+            p+=sizePassword;
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            p+=sizeOfCourses * sizeof(int) ;
+            numberOfProfessor++;
+        }
+
+        p = mBlock;
+        end = fileSize + mBlock;
+        tab = new Professor[numberOfProfessor];
+
+        for(int i = 0; i<numberOfProfessor; i++)
+        {
+           
+            size_t sizeUsername = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string usernameString(p, sizeUsername);
+            p+=sizeUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            string passwordString(p, sizePassword);
+            p+=sizePassword;
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
+
+            tab[i].setUsername(usernameString);
+            tab[i].setPassword(passwordString);
+            tab[i].setSizeCourseProf(sizeOfCourses);
+            tab[i].courseProf = new Course[sizeOfCourses];
+            for(int j = 0; j<sizeOfCourses; j++)
+            {
+                int id = *((int*)p);
+                p+=sizeof(int);
+                tab[i].courseProf[j].setId(id);
+            }
+
+        }
+        delete[] mBlock;
+    }
+    else
+        cout << "Couldn't open the file!" << endl;
+
+    return tab;
 }
 
 #endif
