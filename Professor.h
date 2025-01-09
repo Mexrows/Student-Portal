@@ -71,7 +71,7 @@ unsigned int Professor::getSizeCourseProf()
 }
 
 void writeProfessorFile(const string &fileName, Professor prof);
-bool readProfessorFile(const string &fileName, string username, string password, Professor &prof);
+bool readProfessorFile(const string &fileName, string username, string password, Professor &prof, bool isExistCheck);
 void professorPanel(Professor &professor, bool &isSystemOpen);
 
 /*
@@ -110,7 +110,7 @@ void writeProfessorFile(const string &fileName, Professor prof)
         cout << "Couldn't open the file!" << endl;
 }
 
-bool readProfessorFile(const string &fileName, string username, string password, Professor &prof)
+bool readProfessorFile(const string &fileName, string username, string password, Professor &prof, bool isExistCheck)
 {
     ifstream file(fileName, ios::binary | ios::ate);
     if(file.is_open())
@@ -132,6 +132,12 @@ bool readProfessorFile(const string &fileName, string username, string password,
 
             string usernameString(p, sizeUsername);
             p+=sizeUsername;
+
+            if(isExistCheck)
+            {
+                if(username == usernameString)
+                    return isExistCheck;
+            }
 
             //Password
             size_t sizePassword = *((size_t*)p);

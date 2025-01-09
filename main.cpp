@@ -12,10 +12,65 @@ using namespace std;
 void mainMenu(bool &isSystemOpen);
 void loginScreen(bool &isSystemOpen);
 
+/*
+Admin:
+username = admin
+password = adminpw
+---------------------------
+Professor:
+username = prof1
+password = prof1pw
+courses = c++, java
+
+username = prof2
+password = prof2pw
+courses = java
+---------------------------
+Assistant:
+username = assistant1
+password = assistant1pw
+id = 1
+asisst course = c++
+learn course = java
+
+username = assistant2
+password = assistant2pw
+id = 2
+asisst course = java
+learn course = c++
+---------------------------
+Student:
+username = student1
+password = student1pw
+id = 1
+courses = c++
+gpa = 4.0
+
+username = student2
+password = student2pw
+id = 2
+courses = java
+gpa = 3.5
+
+username = student3
+password = student3pw
+id = 3
+courses = c++, java
+gpa = 3.0
+---------------------------
+Courses:
+name = c++
+id = 1
+
+name = java
+id = 2
+
+*/
+
 int main()
 {
-    // To create admin, admin exists in admindb.bin file
-    // writeFile("admindb.bin", "admin", "admin");
+
+    writeFile("admindb.bin", "admin", "admin");
 
     bool isSystemOpen = true;
     mainMenu(isSystemOpen);
@@ -108,7 +163,7 @@ void loginScreen(bool &isSystemOpen)
             getline(cin, password);
             cout << endl;
             Professor professor;
-            isExist = readProfessorFile("professordb.bin", username, password, professor);
+            isExist = readProfessorFile("professordb.bin", username, password, professor, false);
 
             bool validLogin = false;
 
@@ -141,7 +196,7 @@ void loginScreen(bool &isSystemOpen)
         cout << endl;
 
         Assistant assistant;
-        isExist = readAssistantFile("assistantdb.bin", username, password, assistant);
+        isExist = readAssistantFile("assistantdb.bin", username, password, assistant, false);
 
         bool validLogin = false;
 
@@ -172,7 +227,7 @@ void loginScreen(bool &isSystemOpen)
             getline(cin, password);
             cout << endl;
             Student student;
-            isExist = readStudentFile("studentdb.bin", username, password, student);
+            isExist = readStudentFile("studentdb.bin", username, password, student, false);
 
             bool validLogin = false;
 

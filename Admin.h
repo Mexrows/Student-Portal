@@ -126,30 +126,42 @@ void adminPanel(bool &isSystemOpen)
         string password = "";
         unsigned int numberOfCourse = 0;
         int courseID = 0;
+        bool isExistCheck = true;
 
         cin.ignore();
         
         cout << "Enter the professor username" << endl;
         getline(cin, username);
-        cout << "Enter the professor password" << endl;
-        getline(cin, password);
-        cout << "Enter the number of courses" << endl;
-        cin >> numberOfCourse;
-
-        Course* courses = new Course[numberOfCourse];
-        for(unsigned int i = 0; i < numberOfCourse; i++)
+        Professor temp;
+        isExistCheck = readProfessorFile("professordb.bin", username, password, temp, isExistCheck);
+        if(isExistCheck)
         {
-            cout << "Enter the " << i+1 << ". course id ";
-            cin >> courseID;
-            courses[i].setId(courseID);
+            cout << "This professor exists! You cannot add." << endl;
         }
-           
-        Professor p1(password, username);
-        p1.courseProf = courses;
-        p1.setSizeCourseProf(numberOfCourse);
+        
+        else
+        {
+            cout << "Enter the professor password" << endl;
+            getline(cin, password);
+            cout << "Enter the number of courses" << endl;
+            cin >> numberOfCourse;
 
-        writeProfessorFile("professordb.bin", p1);
-        adminPanel(isSystemOpen);
+            Course* courses = new Course[numberOfCourse];
+            for(unsigned int i = 0; i < numberOfCourse; i++)
+            {
+                cout << "Enter the " << i+1 << ". course id ";
+                cin >> courseID;
+                courses[i].setId(courseID);
+            }
+           
+            Professor p1(password, username);
+            p1.courseProf = courses;
+            p1.setSizeCourseProf(numberOfCourse);
+
+            writeProfessorFile("professordb.bin", p1);
+            adminPanel(isSystemOpen);
+        }
+        
     }
 
     if(number == 2)
@@ -162,51 +174,62 @@ void adminPanel(bool &isSystemOpen)
         int courseIDLearn = 0;
         float gpa = 0.0f;
         int id = 0;
+        bool isExistCheck = true;
 
         cin.ignore();
 
         cout << "Enter the assistant username" << endl;
         getline(cin, username);
-        cout << "Enter the assistant password" << endl;
-        getline(cin, password);
-        cout << "Enter the assistant's student ID" << endl;
-        cin >> id;
-        cout << "Enter the assistant's GPA" << endl;
-        cin >> gpa;
-        cout << "Enter the number of courses that assistant teaches" << endl;
-        cin >> numberOfCourseTeach;
-
-        Course* coursesTeach = new Course[numberOfCourseTeach];
-
-        for(unsigned int i = 0; i < numberOfCourseTeach; i++)
+        Assistant temp;
+        isExistCheck = readAssistantFile("assistantdb.bin", username, password, temp, isExistCheck);
+        if(isExistCheck)
         {
-            cout << "Enter the " << i+1 << ". course id ";
-            cin >> courseIDTeach;
-            coursesTeach[i].setId(courseIDTeach);
+            cout << "This assistant exists! You cannot add." << endl;
         }
-
-        cout << "Enter the number of courses that assistant learns" << endl;
-        cin >> numberOfCourseLearn;
-
-        Course* coursesLearn = new Course[numberOfCourseLearn];
-
-        for(unsigned int i = 0; i < numberOfCourseLearn; i++)
+        else
         {
-            cout << "Enter the " << i+1 << ". course id ";
-            cin >> courseIDLearn;
-            coursesLearn[i].setId(courseIDLearn);
+            cout << "Enter the assistant password" << endl;
+            getline(cin, password);
+            cout << "Enter the assistant's student ID" << endl;
+            cin >> id;
+            cout << "Enter the assistant's GPA" << endl;
+            cin >> gpa;
+            cout << "Enter the number of courses that assistant teaches" << endl;
+            cin >> numberOfCourseTeach;
+
+            Course* coursesTeach = new Course[numberOfCourseTeach];
+
+            for(unsigned int i = 0; i < numberOfCourseTeach; i++)
+            {
+                cout << "Enter the " << i+1 << ". course id ";
+                cin >> courseIDTeach;
+                coursesTeach[i].setId(courseIDTeach);
+            }
+
+            cout << "Enter the number of courses that assistant learns" << endl;
+            cin >> numberOfCourseLearn;
+
+            Course* coursesLearn = new Course[numberOfCourseLearn];
+
+            for(unsigned int i = 0; i < numberOfCourseLearn; i++)
+            {
+                cout << "Enter the " << i+1 << ". course id ";
+                cin >> courseIDLearn;
+                coursesLearn[i].setId(courseIDLearn);
+            }
+
+            Assistant a1(password, username, id, gpa);
+
+            a1.courseProf = coursesTeach;
+            a1.setSizeCourseProf(numberOfCourseTeach);
+
+            a1.courseStudent = coursesLearn;
+            a1.setSizeCourseStudent(numberOfCourseLearn);
+
+            writeAssistantFile("assistantdb.bin", a1);
+            adminPanel(isSystemOpen);
         }
-
-        Assistant a1(password, username, id, gpa);
-
-        a1.courseProf = coursesTeach;
-        a1.setSizeCourseProf(numberOfCourseTeach);
-
-        a1.courseStudent = coursesLearn;
-        a1.setSizeCourseStudent(numberOfCourseLearn);
-
-        writeAssistantFile("assistantdb.bin", a1);
-        adminPanel(isSystemOpen);
+        
     }
 
     if(number == 3)
@@ -217,40 +240,52 @@ void adminPanel(bool &isSystemOpen)
         int courseID = 0;
         float gpa = 0.0;
         int id = 0;
+        bool isExistCheck = true;
 
         cin.ignore();
         
         cout << "Enter the student username" << endl;
         getline(cin, username);
-        cout << "Enter the student password" << endl;
-        getline(cin, password);
-        cout << "Enter the student id" << endl;
-        cin >> id;
-        cout << "Enter the student gpa" << endl;
-        cin >> gpa;
-        cout << "Enter the number of courses" << endl;
-        cin >> numberOfCourse;
-
-        Course* courses = new Course[numberOfCourse];
-        for(unsigned int i = 0; i < numberOfCourse; i++)
+        Student temp;
+        isExistCheck = readStudentFile("studentdb.bin", username, password, temp, isExistCheck);
+        if(isExistCheck)
         {
-            cout << "Enter the " << i+1 << ". course id ";
-            cin >> courseID;
-            courses[i].setId(courseID);
+            cout << "This student exists! You cannot add." << endl;
         }
-           
-        Student s1(password, username, id, gpa);
-        s1.courseStudent = courses;
-        s1.setSizeCourseStudent(numberOfCourse);
+        
+        else
+        {
+            cout << "Enter the student password" << endl;
+            getline(cin, password);
+            cout << "Enter the student id" << endl;
+            cin >> id;
+            cout << "Enter the student gpa" << endl;
+            cin >> gpa;
+            cout << "Enter the number of courses" << endl;
+            cin >> numberOfCourse;
 
-        writeStudentFile("studentdb.bin", s1);
-        adminPanel(isSystemOpen);
+            Course* courses = new Course[numberOfCourse];
+            for(unsigned int i = 0; i < numberOfCourse; i++)
+            {
+                cout << "Enter the " << i+1 << ". course id ";
+                cin >> courseID;
+                courses[i].setId(courseID);
+            }
+           
+            Student s1(password, username, id, gpa);
+            s1.courseStudent = courses;
+            s1.setSizeCourseStudent(numberOfCourse);
+
+            writeStudentFile("studentdb.bin", s1);
+            adminPanel(isSystemOpen);
+        }
     }
 
     if(number == 4)
     {
         string courseName;
         int id;
+        bool isExistCheck = true;
 
         cin.ignore();
 
@@ -260,8 +295,19 @@ void adminPanel(bool &isSystemOpen)
         cin >> id;
 
         Course c1(courseName, id);
-        writeCourseFile("coursedb.bin", c1);
-        readCourseFile("coursedb.bin", c1.getId(), c1);
+        isExistCheck = readCourseFile("coursedb.bin", c1.getId(), c1);
+        if(isExistCheck)
+        {
+            cout << "This course exists! You cannot add." << endl;
+        }
+        else
+        {
+            writeCourseFile("coursedb.bin", c1);
+        }
+        
+        
+        
+        
     }
 
     if(number == 5)

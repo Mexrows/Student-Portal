@@ -44,7 +44,7 @@ Assistant::Assistant(string password, string username, unsigned int id, float gp
 };
 
 void writeAssistantFile(const string &fileName, Assistant assistant);
-bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant);
+bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant, bool isExistCheck);
 void assitantPanel(Assistant &assistant, bool &isSystemOpen);
 
 /*
@@ -118,7 +118,7 @@ void writeAssistantFile(const string &fileName, Assistant assistant)
     8.Course ID Student
 */
 
-bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant)
+bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant, bool isExistCheck)
 {
     ifstream file(fileName, ios::binary | ios::ate);
 
@@ -139,6 +139,12 @@ bool readAssistantFile(const string &fileName, string username, string password,
 
             string usernameString(p, sizeUsername);
             p+=sizeUsername;
+
+            if(isExistCheck)
+            {
+                if(usernameString == username)
+                    return isExistCheck;
+            }
 
             //Password
             size_t sizePassword = *((size_t*)p);
