@@ -130,26 +130,27 @@ void adminPanel(bool &isSystemOpen)
 
         cin.ignore();
         
-        cout << "Enter the professor username" << endl;
+        cout << "Enter the professor username: ";
         getline(cin, username);
         Professor temp;
         isExistCheck = readProfessorFile("professordb.bin", username, password, temp, isExistCheck);
         if(isExistCheck)
         {
             cout << "This professor exists! You cannot add." << endl;
+            adminPanel(isSystemOpen);
         }
         
         else
         {
-            cout << "Enter the professor password" << endl;
+            cout << "Enter the professor password: ";
             getline(cin, password);
-            cout << "Enter the number of courses" << endl;
+            cout << "Enter the number of courses: ";
             cin >> numberOfCourse;
 
             Course* courses = new Course[numberOfCourse];
             for(unsigned int i = 0; i < numberOfCourse; i++)
             {
-                cout << "Enter the " << i+1 << ". course id ";
+                cout << "Enter the " << i+1 << ". course id: ";
                 cin >> courseID;
                 courses[i].setId(courseID);
             }
@@ -178,23 +179,24 @@ void adminPanel(bool &isSystemOpen)
 
         cin.ignore();
 
-        cout << "Enter the assistant username" << endl;
+        cout << "Enter the assistant username: ";
         getline(cin, username);
         Assistant temp;
         isExistCheck = readAssistantFile("assistantdb.bin", username, password, temp, isExistCheck);
         if(isExistCheck)
         {
             cout << "This assistant exists! You cannot add." << endl;
+            adminPanel(isSystemOpen);
         }
         else
         {
-            cout << "Enter the assistant password" << endl;
+            cout << "Enter the assistant password: ";
             getline(cin, password);
-            cout << "Enter the assistant's student ID" << endl;
+            cout << "Enter the assistant's student ID: ";
             cin >> id;
-            cout << "Enter the assistant's GPA" << endl;
+            cout << "Enter the assistant's GPA: ";
             cin >> gpa;
-            cout << "Enter the number of courses that assistant teaches" << endl;
+            cout << "Enter the number of courses that assistant teaches: ";
             cin >> numberOfCourseTeach;
 
             Course* coursesTeach = new Course[numberOfCourseTeach];
@@ -206,14 +208,14 @@ void adminPanel(bool &isSystemOpen)
                 coursesTeach[i].setId(courseIDTeach);
             }
 
-            cout << "Enter the number of courses that assistant learns" << endl;
+            cout << "Enter the number of courses that assistant learns: ";
             cin >> numberOfCourseLearn;
 
             Course* coursesLearn = new Course[numberOfCourseLearn];
 
             for(unsigned int i = 0; i < numberOfCourseLearn; i++)
             {
-                cout << "Enter the " << i+1 << ". course id ";
+                cout << "Enter the " << i+1 << ". course id: ";
                 cin >> courseIDLearn;
                 coursesLearn[i].setId(courseIDLearn);
             }
@@ -244,30 +246,31 @@ void adminPanel(bool &isSystemOpen)
 
         cin.ignore();
         
-        cout << "Enter the student username" << endl;
+        cout << "Enter the student username: ";
         getline(cin, username);
         Student temp;
         isExistCheck = readStudentFile("studentdb.bin", username, password, temp, isExistCheck);
         if(isExistCheck)
         {
             cout << "This student exists! You cannot add." << endl;
+            adminPanel(isSystemOpen);
         }
         
         else
         {
-            cout << "Enter the student password" << endl;
+            cout << "Enter the student password: ";
             getline(cin, password);
-            cout << "Enter the student id" << endl;
+            cout << "Enter the student id: ";
             cin >> id;
-            cout << "Enter the student gpa" << endl;
+            cout << "Enter the student gpa: ";
             cin >> gpa;
-            cout << "Enter the number of courses" << endl;
+            cout << "Enter the number of courses: ";
             cin >> numberOfCourse;
 
             Course* courses = new Course[numberOfCourse];
             for(unsigned int i = 0; i < numberOfCourse; i++)
             {
-                cout << "Enter the " << i+1 << ". course id ";
+                cout << "Enter the " << i+1 << ". course id: ";
                 cin >> courseID;
                 courses[i].setId(courseID);
             }
@@ -291,7 +294,7 @@ void adminPanel(bool &isSystemOpen)
 
         cout << "Enter the course name: ";
         getline(cin, courseName);
-        cout << "Enter the course id ";
+        cout << "Enter the course id: ";
         cin >> id;
 
         Course c1(courseName, id);
@@ -305,7 +308,7 @@ void adminPanel(bool &isSystemOpen)
             writeCourseFile("coursedb.bin", c1);
         }
         
-        
+        adminPanel(isSystemOpen);
         
         
     }
@@ -455,6 +458,8 @@ void removeProfessor(const string &fileName, const string &username)
     {
         cout << "Files couldn't opened!" << endl;
     }
+
+    
 }
 
 void removeStudent(const string &fileName, const string &username)

@@ -20,7 +20,7 @@ password = adminpw
 Professor:
 username = prof1
 password = prof1pw
-courses = c++, java
+courses = c++, python
 
 username = prof2
 password = prof2pw
@@ -29,13 +29,15 @@ courses = java
 Assistant:
 username = assistant1
 password = assistant1pw
-id = 1
-asisst course = c++
+id = 50
+gpa = 3.4
+asisst course = c++, python
 learn course = java
 
 username = assistant2
 password = assistant2pw
-id = 2
+id = 51
+gpa = 3.8
 asisst course = java
 learn course = c++
 ---------------------------
@@ -43,7 +45,7 @@ Student:
 username = student1
 password = student1pw
 id = 1
-courses = c++
+courses = c++, python
 gpa = 4.0
 
 username = student2
@@ -65,12 +67,15 @@ id = 1
 name = java
 id = 2
 
+name = python
+id = 3
+
 */
 
 int main()
 {
 
-    writeFile("admindb.bin", "admin", "admin");
+    writeFile("admindb.bin", "admin", "adminpw");
 
     bool isSystemOpen = true;
     mainMenu(isSystemOpen);
