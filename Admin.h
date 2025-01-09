@@ -106,8 +106,10 @@ void adminPanel(bool &isSystemOpen)
     cout << "6. Remove Student" << endl;
     cout << "7. Remove Assistant" << endl;
     cout << "8. Show all professors" << endl;
-    cout << "9. Back to main menu" << endl;
-    cout << "10. Exit the system" << endl;
+    cout << "9. Show all assistants" << endl;
+    cout << "10. Show all students" << endl;
+    cout << "11. Back to main menu" << endl;
+    cout << "12. Exit the system" << endl;
 
     unsigned short number = 0;
     
@@ -115,11 +117,11 @@ void adminPanel(bool &isSystemOpen)
     {
         if(number > 9)
         {
-            cout << "Enter the number between 1 and 4" << endl;
+            cout << "Enter the number between 1 and 12" << endl;
         }
         cout << "Enter the choice: ";
         cin >> number;
-    } while (number > 9);
+    } while (number > 12);
     
     if(number == 1)
     {
@@ -390,19 +392,68 @@ void adminPanel(bool &isSystemOpen)
             cout << "Courses: " << endl;
             for(int j = 0; j<allProfs[i].getSizeCourseProf(); j++)
             {
-                cout << j+1 << ". Course ID: " << allProfs[i].courseProf[j].getId();
+                cout << j+1 << ". Course ID: " << allProfs[i].courseProf[j].getId() << endl;
             }
-            
+            cout << "******************************************" << endl;
         }
+        cout << endl;
         delete[] allProfs;
+        adminPanel(isSystemOpen);
     }
 
     if(number == 9)
     {
-        cout << endl << endl;
+        int numberOfAssistant = 0;
+        Assistant* allAssistants = readAllAssistants("assistantdb.bin", numberOfAssistant);
+        for(int i = 0; i<numberOfAssistant; i++)
+        {
+            cout << "Assistant Username: " << allAssistants[i].Student::getUsername() << endl;
+            cout << "Assistant Id: " << allAssistants[i].getId() << endl;
+            cout << "Assistant GPA: " << allAssistants[i].getGpa() << endl;
+            cout << "Learning Courses: " << endl;
+            for(int j = 0; j<allAssistants[i].getSizeCourseStudent(); j++)
+            {
+                cout << j+1 << ". Course ID: " << allAssistants[i].courseStudent[j].getId() << endl;
+            }
+            cout << "Teaching Courses: " << endl;
+            for(int k = 0; k<allAssistants[i].getSizeCourseProf(); k++)
+            {
+                cout << k+1 << ". Course ID: " << allAssistants[i].courseStudent[k].getId() << endl;
+            }
+            cout << "******************************************" << endl;
+        }
+        cout << endl;
+        delete[] allAssistants;
+        adminPanel(isSystemOpen);
     }
 
     if(number == 10)
+    {
+        int numberOfStudent = 0;
+        Student* allStudents = readAllStudents("studentdb.bin", numberOfStudent);
+        for(int i = 0; i<numberOfStudent; i++)
+        {
+            cout << "Student Username: " << allStudents[i].getUsername() << endl;
+            cout << "Student Id: " << allStudents[i].getId() << endl;
+            cout << "Student GPA: " << allStudents[i].getGpa() << endl;
+            cout << "Courses: " << endl;
+            for(int j = 0; j<allStudents[i].getSizeCourseStudent(); j++)
+            {
+                cout << j+1 << ". Course ID: " << allStudents[i].courseStudent[j].getId() << endl;
+            }
+            cout << "******************************************" << endl;
+        }
+        cout << endl;
+        delete[] allStudents;
+        adminPanel(isSystemOpen);
+    }
+
+    if(number == 11)
+    {
+        cout << endl << endl;
+    }
+
+    if(number == 12)
     {
         isSystemOpen = false;
     }

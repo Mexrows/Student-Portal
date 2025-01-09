@@ -1,0 +1,2 @@
+
+        getline(cin, password);

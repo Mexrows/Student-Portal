@@ -242,20 +242,21 @@ Professor *readAllProfessor(const string &fileName, int &numberOfProfessor)
             p+=sizeUsername;
 
             size_t sizePassword = *((size_t*)p);
-            p += sizeof(size_t);
+            p+=sizeof(size_t);
 
             string passwordString(p, sizePassword);
-            p += sizePassword;
+            p+=sizePassword;
 
             unsigned int sizeOfCourses = *((unsigned int*)p);
             p+=sizeof(unsigned int);
 
-            p+=sizeof(int) * sizeOfCourses;
+            p+=sizeOfCourses * sizeof(int) ;
             numberOfProfessor++;
         }
 
         p = mBlock;
         end = fileSize + mBlock;
+        tab = new Professor[numberOfProfessor];
 
         for(int i = 0; i<numberOfProfessor; i++)
         {
@@ -267,10 +268,10 @@ Professor *readAllProfessor(const string &fileName, int &numberOfProfessor)
             p+=sizeUsername;
 
             size_t sizePassword = *((size_t*)p);
-            p += sizeof(size_t);
+            p+=sizeof(size_t);
 
             string passwordString(p, sizePassword);
-            p += sizePassword;
+            p+=sizePassword;
 
             unsigned int sizeOfCourses = *((unsigned int*)p);
             p+=sizeof(unsigned int);
