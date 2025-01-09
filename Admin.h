@@ -105,8 +105,9 @@ void adminPanel(bool &isSystemOpen)
     cout << "5. Remove Professor" << endl;
     cout << "6. Remove Student" << endl;
     cout << "7. Remove Assistant" << endl;
-    cout << "8. Back to main menu" << endl;
-    cout << "9. Exit the system" << endl;
+    cout << "8. Show all professors" << endl;
+    cout << "9. Back to main menu" << endl;
+    cout << "10. Exit the system" << endl;
 
     unsigned short number = 0;
     
@@ -381,10 +382,27 @@ void adminPanel(bool &isSystemOpen)
 
     if(number == 8)
     {
-        cout << endl << endl;
+        int numberOfProfessor = 0;
+        Professor* allProfs = readAllProfessor("professordb.bin", numberOfProfessor);
+        for(int i = 0; i<numberOfProfessor; i++)
+        {
+            cout << "Professor Username: " << allProfs[i].getUsername() << endl;
+            cout << "Courses: " << endl;
+            for(int j = 0; j<allProfs[i].getSizeCourseProf(); j++)
+            {
+                cout << j+1 << ". Course ID: " << allProfs[i].courseProf[j].getId();
+            }
+            
+        }
+        delete[] allProfs;
     }
 
     if(number == 9)
+    {
+        cout << endl << endl;
+    }
+
+    if(number == 10)
     {
         isSystemOpen = false;
     }
