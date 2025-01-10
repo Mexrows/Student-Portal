@@ -7,15 +7,6 @@
 #include "Course.h"
 #include "Assistant.h"
 
-void writeFile(const string &fileName, string username, string password);
-bool readFileAdmin(const string &fileName, string username, string password);
-void adminPanel(bool &isSystemOpen);
-void removeProfessor(const string &fileName, const string &username);
-void removeStudent(const string &fileName, const string &username);
-void removeAssistant(const string &fileName, const string &username);
-
-
-
 class Admin: public Person
 {
     public:
@@ -29,7 +20,6 @@ Admin::Admin(string password, string username): Person(password, username)
 {
     
 };
-
 
 void writeFile(const string &fileName, string username, string password)
 {
@@ -65,15 +55,28 @@ bool readFileAdmin(const string &fileName, string username, string password)
         size_t sizeUsername = *((size_t*)p);
         p+=sizeof(size_t);
 
-        string usernameString(p, sizeUsername);
-        p+=sizeUsername;
+        char* bufferUsername = new char[sizeUsername + 1];
+        
+        for (size_t i = 0; i < sizeUsername; ++i) {
+            bufferUsername[i] = *p++;
+        }
+
+        bufferUsername[sizeUsername] = '\0';
+        string usernameString = bufferUsername;
+        delete[] bufferUsername;
 
         //Password
         size_t sizePassword = *((size_t*)p);
         p += sizeof(size_t);
 
-        string passwordString(p, sizePassword);
-        p += sizePassword;
+        char* bufferPassword = new char[sizePassword + 1];
+
+        for (size_t i = 0; i < sizePassword; ++i) {
+            bufferPassword[i] = *p++;
+        }
+        bufferPassword[sizePassword] = '\0';
+        string passwordString = bufferPassword;
+        delete[] bufferPassword;
 
         //Check username and password
         bool isExist = false;
@@ -130,6 +133,7 @@ void adminPanel(bool &isSystemOpen)
         unsigned int numberOfCourse = 0;
         int courseID = 0;
         bool isExistCheck = true;
+        bool isThereAnyCourse = false;
 
         cin.ignore();
         
@@ -153,8 +157,30 @@ void adminPanel(bool &isSystemOpen)
             Course* courses = new Course[numberOfCourse];
             for(unsigned int i = 0; i < numberOfCourse; i++)
             {
-                cout << "Enter the " << i+1 << ". course id: ";
-                cin >> courseID;
+                do
+                {
+                    cout << "Enter the " << i+1 << ". course id: ";
+                    cin >> courseID;
+
+                    Course course;
+                    bool isThereAnyCourse = readCourseFile("coursedb.bin", courseID, course);
+
+                    if(isThereAnyCourse)
+                    {
+                        if(doesCourseHaveProfessor("professor.bin", courseID))
+                        {
+                            cout << "This course have a professor!" << endl;
+                            isThereAnyCourse = false;
+                        }
+                    }
+
+                    else
+                    {
+                        cout << "This course isn't in the database!" << endl;
+                    }
+
+                } while(!isThereAnyCourse);
+
                 courses[i].setId(courseID);
             }
            
@@ -179,6 +205,7 @@ void adminPanel(bool &isSystemOpen)
         float gpa = 0.0f;
         int id = 0;
         bool isExistCheck = true;
+        bool isThereAnyCourse = false;
 
         cin.ignore();
 
@@ -197,8 +224,16 @@ void adminPanel(bool &isSystemOpen)
             getline(cin, password);
             cout << "Enter the assistant's student ID: ";
             cin >> id;
-            cout << "Enter the assistant's GPA: ";
-            cin >> gpa;
+
+            do
+            {
+                cout << "Enter the student gpa: ";
+                cin >> gpa;
+
+                if(gpa > 4)
+                    cout << "GPA cannot be bigger than four!" << endl;
+            }while(gpa > 4);
+
             cout << "Enter the number of courses that assistant teaches: ";
             cin >> numberOfCourseTeach;
 
@@ -206,8 +241,21 @@ void adminPanel(bool &isSystemOpen)
 
             for(unsigned int i = 0; i < numberOfCourseTeach; i++)
             {
-                cout << "Enter the " << i+1 << ". course id ";
-                cin >> courseIDTeach;
+                do
+                {
+                    cout << "Enter " << i + 1 << ". course id:";
+                    cin >> courseIDTeach;
+
+                    Course course;
+                    isThereAnyCourse = readCourseFile("coursedb.bin", courseIDTeach, course);
+
+                    if(!isThereAnyCourse)
+                    {
+                        cout << "The course isn't in the database" << endl;
+                    }
+                    
+                } while (!isThereAnyCourse);
+                
                 coursesTeach[i].setId(courseIDTeach);
             }
 
@@ -216,10 +264,40 @@ void adminPanel(bool &isSystemOpen)
 
             Course* coursesLearn = new Course[numberOfCourseLearn];
 
+            bool isConflict = false;
+
             for(unsigned int i = 0; i < numberOfCourseLearn; i++)
             {
-                cout << "Enter the " << i+1 << ". course id: ";
-                cin >> courseIDLearn;
+                do
+                {
+                    cout << "Enter " << i + 1 << ". course id:";
+                    cin >> courseIDLearn;
+
+                    Course course;
+                    isThereAnyCourse = readCourseFile("coursedb.bin", courseIDLearn, course);
+
+                    if(!isThereAnyCourse)
+                    {
+                        cout << "The course isn't in the database" << endl;
+                    }
+
+                    else
+                    {
+                        isConflict = false;
+                        for(unsigned int j = 0; j < numberOfCourseTeach; j++)
+                        {
+                            if(courseIDLearn == coursesTeach[j].getId())
+                            {
+                                isConflict = true;
+
+                                cout << "The assistant cannot both teach and learn a course!" << endl;
+                                break;
+                            }
+                        }
+                    }
+                    
+                } while (!isThereAnyCourse || isConflict);
+
                 coursesLearn[i].setId(courseIDLearn);
             }
 
@@ -246,6 +324,7 @@ void adminPanel(bool &isSystemOpen)
         float gpa = 0.0;
         int id = 0;
         bool isExistCheck = true;
+        bool isThereAnyCourse = false;
 
         cin.ignore();
         
@@ -265,17 +344,41 @@ void adminPanel(bool &isSystemOpen)
             getline(cin, password);
             cout << "Enter the student id: ";
             cin >> id;
-            cout << "Enter the student gpa: ";
-            cin >> gpa;
+
+            do
+            {
+                cout << "Enter the student gpa: ";
+                cin >> gpa;
+
+                if(gpa > 4)
+                    cout << "GPA cannot be bigger than four!" << endl;
+            }while(gpa > 4);
+
+
             cout << "Enter the number of courses: ";
             cin >> numberOfCourse;
 
             Course* courses = new Course[numberOfCourse];
             for(unsigned int i = 0; i < numberOfCourse; i++)
             {
-                cout << "Enter the " << i+1 << ". course id: ";
-                cin >> courseID;
-                courses[i].setId(courseID);
+                do
+                {
+                    cout << "Enter the " << i+1 << ". course id: ";
+                    cin >> courseID;
+
+                    Course course;
+
+                    isThereAnyCourse = readCourseFile("coursedb.bin", courseID, course);
+
+                    if(!isThereAnyCourse)
+                    {
+                        cout << "The course isn't in the database" << endl;
+                    }
+
+
+                }while(!isThereAnyCourse);
+
+                    courses[i].setId(courseID);
             }
            
             Student s1(password, username, id, gpa);
@@ -390,7 +493,7 @@ void adminPanel(bool &isSystemOpen)
         {
             cout << "Professor Username: " << allProfs[i].getUsername() << endl;
             cout << "Courses: " << endl;
-            for(int j = 0; j<allProfs[i].getSizeCourseProf(); j++)
+            for(unsigned int j = 0; j < allProfs[i].getSizeCourseProf(); j++)
             {
                 cout << j+1 << ". Course ID: " << allProfs[i].courseProf[j].getId() << endl;
             }
@@ -411,12 +514,12 @@ void adminPanel(bool &isSystemOpen)
             cout << "Assistant Id: " << allAssistants[i].getId() << endl;
             cout << "Assistant GPA: " << allAssistants[i].getGpa() << endl;
             cout << "Learning Courses: " << endl;
-            for(int j = 0; j<allAssistants[i].getSizeCourseStudent(); j++)
+            for(unsigned int j = 0; j < allAssistants[i].getSizeCourseStudent(); j++)
             {
                 cout << j+1 << ". Course ID: " << allAssistants[i].courseStudent[j].getId() << endl;
             }
             cout << "Teaching Courses: " << endl;
-            for(int k = 0; k<allAssistants[i].getSizeCourseProf(); k++)
+            for(unsigned int k = 0; k < allAssistants[i].getSizeCourseProf(); k++)
             {
                 cout << k+1 << ". Course ID: " << allAssistants[i].courseStudent[k].getId() << endl;
             }
@@ -437,7 +540,7 @@ void adminPanel(bool &isSystemOpen)
             cout << "Student Id: " << allStudents[i].getId() << endl;
             cout << "Student GPA: " << allStudents[i].getGpa() << endl;
             cout << "Courses: " << endl;
-            for(int j = 0; j<allStudents[i].getSizeCourseStudent(); j++)
+            for(unsigned int j = 0; j < allStudents[i].getSizeCourseStudent(); j++)
             {
                 cout << j+1 << ". Course ID: " << allStudents[i].courseStudent[j].getId() << endl;
             }
@@ -456,255 +559,6 @@ void adminPanel(bool &isSystemOpen)
     if(number == 12)
     {
         isSystemOpen = false;
-    }
-}
-
-void removeProfessor(const string &fileName, const string &username)
-{
-    ifstream file(fileName, ios::binary | ios::ate);
-    ofstream temp("temp.bin", ios::binary);
-
-    if(file.is_open() && temp.is_open())
-    {
-        streampos fileSize = file.tellg();
-        file.seekg(0, ios::beg);
-        char* mBlock = new char [fileSize];
-        file.read(mBlock, fileSize);
-        file.close();
-        char* p = mBlock;
-        char* end = mBlock + fileSize;
-        
-        while(p < end)
-        {
-            size_t sizeUsername = *((size_t*)p);
-            p += sizeof(size_t);
-
-            string usernameString(p, sizeUsername);
-            p += sizeUsername;
-
-            size_t sizePassword = *((size_t*)p);
-            p += sizeof(size_t);
-
-            string passwordString(p, sizePassword);
-            p += sizePassword;
-
-            unsigned int sizeOfCourses = *((unsigned int*)p);
-            p += sizeof(unsigned int);
-
-            Course* courses = new Course [sizeOfCourses];
-
-            for(unsigned int i = 0; i < sizeOfCourses; i++)
-            {
-                int id = *((int*)p);
-                p += sizeof(int);
-                courses[i].setId(id);
-            }
-
-            if(username != usernameString)
-            {
-                temp.write((char*)&sizeUsername, sizeof(size_t));
-                temp.write(usernameString.data(), sizeUsername);
-                temp.write((char*)&sizePassword, sizeof(size_t));
-                temp.write(passwordString.data(), sizePassword);
-                temp.write((char*)&sizeOfCourses, sizeof(unsigned int));
-
-                for(unsigned int i = 0; i < sizeOfCourses; i++)
-                {
-                    int courseID = courses[i].getId();
-                    temp.write((char*)&courseID, sizeof(int));
-                }
-            }
-        }
-
-        delete[] mBlock;
-        temp.close();
-
-        remove(fileName.data());
-        rename("temp.bin", fileName.data());
-    }
-
-    else
-    {
-        cout << "Files couldn't opened!" << endl;
-    }
-
-    
-}
-
-void removeStudent(const string &fileName, const string &username)
-{
-    ifstream file(fileName, ios::binary | ios::ate);
-    ofstream temp("temp.bin", ios::binary);
-
-    if(file.is_open() && temp.is_open())
-    {
-        streampos fileSize = file.tellg();
-        file.seekg(0, ios::beg);
-        char* mBlock = new char [fileSize];
-        file.read(mBlock, fileSize);
-        file.close();
-        char* p = mBlock;
-        char* end = mBlock + fileSize;
-        
-        while(p < end)
-        {
-            size_t sizeUsername = *((size_t*)p);
-            p += sizeof(size_t);
-
-            string usernameString(p, sizeUsername);
-            p += sizeUsername;
-
-            size_t sizePassword = *((size_t*)p);
-            p += sizeof(size_t);
-
-            string passwordString(p, sizePassword);
-            p += sizePassword;
-
-            unsigned int id = *((unsigned int*)p);
-            p += sizeof(unsigned int);
-
-            float gpa = *((float*)p);
-            p += sizeof(float);
-
-            unsigned int sizeOfCourses = *((unsigned int*)p);
-            p += sizeof(unsigned int);
-
-            Course* courses = new Course [sizeOfCourses];
-
-            for(unsigned int i = 0; i < sizeOfCourses; i++)
-            {
-                int id = *((int*)p);
-                p += sizeof(int);
-                courses[i].setId(id);
-            }
-
-            if(username != usernameString)
-            {
-                temp.write((char*)&sizeUsername, sizeof(size_t));
-                temp.write(usernameString.data(), sizeUsername);
-                temp.write((char*)&sizePassword, sizeof(size_t));
-                temp.write(passwordString.data(), sizePassword);
-                temp.write((char*)&id, sizeof(unsigned int));
-                temp.write((char*)&gpa, sizeof(float));
-                temp.write((char*)&sizeOfCourses, sizeof(unsigned int));
-
-                for(unsigned int i = 0; i < sizeOfCourses; i++)
-                {
-                    int courseID = courses[i].getId();
-                    temp.write((char*)&courseID, sizeof(int));
-                }
-            }
-        }
-
-        delete[] mBlock;
-        temp.close();
-
-        remove(fileName.data());
-        rename("temp.bin", fileName.data());
-    }
-
-    else
-    {
-        cout << "Files couldn't opened!" << endl;
-    }
-}
-
-void removeAssistant(const string &fileName, const string &username)
-{
-    ifstream file(fileName, ios::binary | ios::ate);
-    ofstream temp("temp.bin", ios::binary);
-
-    if(file.is_open() && temp.is_open())
-    {
-        streampos fileSize = file.tellg();
-        file.seekg(0, ios::beg);
-        char* mBlock = new char [fileSize];
-        file.read(mBlock, fileSize);
-        file.close();
-        char* p = mBlock;
-        char* end = mBlock + fileSize;
-        
-        while(p < end)
-        {
-            size_t sizeUsername = *((size_t*)p);
-            p += sizeof(size_t);
-
-            string usernameString(p, sizeUsername);
-            p += sizeUsername;
-
-            size_t sizePassword = *((size_t*)p);
-            p += sizeof(size_t);
-
-            string passwordString(p, sizePassword);
-            p += sizePassword;
-
-            unsigned int id = *((unsigned int*)p);
-            p += sizeof(unsigned int);
-
-            float gpa = *((float*)p);
-            p += sizeof(float);
-
-            unsigned int sizeOfCoursesProf = *((unsigned int*)p);
-            p += sizeof(unsigned int);
-
-            Course* courseProf = new Course [sizeOfCoursesProf];
-
-            for(unsigned int i = 0; i < sizeOfCoursesProf; i++)
-            {
-                int courseID = *((int*)p);
-                p += sizeof(int);
-                courseProf[i].setId(courseID);
-            }
-
-            unsigned int sizeOfCourseStudent = *((unsigned int*)p);
-            p += sizeof(unsigned int);
-
-
-            Course* coursesStudent = new Course [sizeOfCourseStudent];
-
-            for(unsigned int i = 0; i < sizeOfCourseStudent; i++)
-            {
-                int id = *((int*)p);
-                p += sizeof(int);
-                coursesStudent[i].setId(id);
-            }
-
-            if(username != usernameString)
-            {
-                temp.write((char*)&sizeUsername, sizeof(size_t));
-                temp.write(usernameString.data(), sizeUsername);
-                temp.write((char*)&sizePassword, sizeof(size_t));
-                temp.write(passwordString.data(), sizePassword);
-                temp.write((char*)&id, sizeof(unsigned int));
-                temp.write((char*)&gpa, sizeof(float));
-                temp.write((char*)&sizeOfCoursesProf, sizeof(unsigned int));
-
-                for(unsigned int i = 0; i < sizeOfCoursesProf; i++)
-                {
-                    int courseID = courseProf[i].getId();
-                    temp.write((char*)&courseID, sizeof(int));
-                }
-
-                temp.write((char*)&sizeOfCourseStudent, sizeof(unsigned int));
-
-                for(unsigned int i = 0; i < sizeOfCourseStudent; i++)
-                {
-                    int courseID = coursesStudent[i].getId();
-                    temp.write((char*)&courseID, sizeof(int));
-                }
-            }
-        }
-
-        delete[] mBlock;
-        temp.close();
-
-        remove(fileName.data());
-        rename("temp.bin", fileName.data());
-    }
-
-    else
-    {
-        cout << "Files couldn't opened!" << endl;
     }
 }
 

@@ -22,7 +22,6 @@ class Course
     void setId(int id);
     void setName(string name);
 
-
     
 };
 
@@ -99,7 +98,7 @@ void writeCourseFile(const string &fileName, Course &course)
         cout << "Couldn't open the file!" << endl;
 }
 
-bool readCourseFile(const string &fileName, int id, Course &course)
+bool readCourseFile(const string &fileName, int CourseID, Course &course)
 {
     ifstream file(fileName, ios::binary | ios::ate);
     if(file.is_open())
@@ -119,20 +118,27 @@ bool readCourseFile(const string &fileName, int id, Course &course)
         size_t sizeName = *((size_t*)p);
         p+=sizeof(size_t);
 
-        string nameString(p, sizeName);
-        p+=sizeName;
+        char* bufferName = new char[sizeName + 1];
+        
+        for (size_t i = 0; i < sizeName; ++i) {
+            bufferName[i] = *p++;
+        }
+        
+        bufferName[sizeName] = '\0';
+        string nameString = bufferName;
+        delete[] bufferName;
 
         //Course ID
-        int id = *((int*)p);
+        int fileCourseID = *((int*)p);
         p += sizeof(int);
         
-        if(id == course.getId() || nameString == course.getName())
+        if(fileCourseID == CourseID)
         {
             isExist = true;
-            course.setId(id);
+            course.setId(fileCourseID);
             course.setName(nameString);
-            delete[] mBlock;
-            return isExist;
+            
+            break;
         }
         }
         delete[] mBlock;
@@ -140,6 +146,8 @@ bool readCourseFile(const string &fileName, int id, Course &course)
     }
     else
         cout << "Couldn't open the file!" << endl;
+
+    return false;
 }
 
 void coursePanel()
@@ -169,7 +177,7 @@ void coursePanel()
         if(isExist)
         {
             cout << "******************************************" << endl;
-            for(int i = 0; i<numberOfCourses; i++)
+            for(unsigned int i = 0; i < numberOfCourses; i++)
             {
                 cout << i+1 << ". Course: "<< allCourses[i].getName() << ", " << allCourses[i].getId() << endl;
             }
@@ -221,29 +229,43 @@ Course *readAllCourseFile(const string &fileName, unsigned int &numberOfCourses,
         size_t sizeName = *((size_t*)p);
         p+=sizeof(size_t);
 
-        string nameString(p, sizeName);
-        p+=sizeName;
+        char* bufferName = new char[sizeName + 1];
+        
+        for (size_t i = 0; i < sizeName; ++i) {
+            bufferName[i] = *p++;
+        }
+        
+        bufferName[sizeName] = '\0';
+        string nameString = bufferName;
+        delete[] bufferName;
 
         //Course ID
-        int id = *((int*)p);
         p += sizeof(int);
         numberOfCourses++;
         }
 
         p = mBlock;
         tab = new Course[numberOfCourses];
-        for(int i = 0; i<numberOfCourses; i++)
+        for(unsigned int i = 0; i < numberOfCourses; i++)
         {
             //Course Name
             size_t sizeName = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string nameString(p, sizeName);
-            p+=sizeName;
+            char* bufferName = new char[sizeName + 1];
+        
+            for (size_t i = 0; i < sizeName; ++i) {
+                bufferName[i] = *p++;
+            }
+
+            bufferName[sizeName] = '\0';
+            string nameString = bufferName;
+            delete[] bufferName;
 
             //Course ID
             int id = *((int*)p);
             p += sizeof(int);
+
             tab[i].setId(id);
             tab[i].setName(nameString);
         }
@@ -252,5 +274,59 @@ Course *readAllCourseFile(const string &fileName, unsigned int &numberOfCourses,
     else
         cout << "Couldn't open the file!" << endl;
     return tab;
+}
+
+void removeCourse(const string &filename, int courseID)
+{
+    ifstream file(filename, ios::binary | ios::ate);
+    ofstream temp("temp.bin", ios::binary);
+
+    if(file.is_open() && temp.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char [fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = mBlock + fileSize;
+
+        while(p < end)
+        {
+            size_t sizeName = *((size_t*)p);
+            p+=sizeof(size_t);
+
+            char* bufferName = new char[sizeName + 1];
+
+            for (size_t i = 0; i < sizeName; ++i) {
+                bufferName[i] = *p++;
+            }
+
+            bufferName[sizeName] = '\0';
+            string nameString = bufferName;
+            delete[] bufferName;
+
+            //Course ID
+            int fileCourseID = *((int*)p);
+            p += sizeof(int);
+
+            if(courseID != fileCourseID)
+            {
+                temp.write((char*)&sizeName, sizeof(size_t));
+                temp.write(nameString.data(), sizeName);
+                temp.write((char*)&fileCourseID, sizeof(int));
+            }
+        }
+
+        delete[] mBlock;
+        temp.close();
+        remove(filename.data());
+        rename("temp.bin", filename.data());
+    }
+
+    else
+    {
+        cout << "Couldn't open the files" << endl;
+    }
 }
 #endif
