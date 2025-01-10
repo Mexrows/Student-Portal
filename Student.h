@@ -25,13 +25,16 @@ class Student: public Person
     unsigned int getId();
     float getGpa();
     unsigned int getSizeCourseStudent();
-
+    void registerToCourse(Course &course);
 
 };
+
 
 void writeStudentFile(const string &fileName, Student student);
 bool readStudentFile(const string &fileName, string username, string password, Student &student, bool isExistCheck);
 Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent, int courseID);
+void removeStudent(const string &fileName, const string &username);
+void updateStudentCourse(Student &student);
 void studentPanel(Student &student, bool &isSystemOpen);
 Student *readAllStudents(const string &fileName, int &numberOfStudent);
 
@@ -107,6 +110,36 @@ unsigned int Student::getSizeCourseStudent()
     return this->sizeCourseStudent;
 }
 
+void Student::registerToCourse(Course &course)
+{
+    for(unsigned int i = 0; i < this->sizeCourseStudent; i++)
+    {
+        if(this->courseStudent[i].getId() == course.getId())
+        {
+            cout << "You already registered!" << endl;
+            return;
+        }
+    }
+
+    unsigned int sizeOfCourse = this->sizeCourseStudent + 1;
+
+    Course* courses = new Course [sizeOfCourse];
+
+    for(unsigned int i = 0; i < this->sizeCourseStudent; i++)
+    {
+        courses[i] = this->courseStudent[i];
+    }
+
+    courses[this->sizeCourseStudent] = course;
+
+    delete[] this->courseStudent;
+
+    this->courseStudent = courses;
+    this->sizeCourseStudent = sizeOfCourse;
+
+    cout << "The register is completed!" << endl;
+}
+
 /*
 1.username
 2.password
@@ -139,7 +172,7 @@ void writeStudentFile(const string &fileName, Student student)
         file.write((char*)&sizeCourseProf, sizeof(unsigned int));
 
         int courseID = 0;
-        for(int i = 0; i<sizeCourseProf; i++)
+        for(unsigned int i = 0; i < sizeCourseProf; i++)
         {
             courseID = student.courseStudent[i].getId();
             file.write((char*)&courseID, sizeof(int));
@@ -171,8 +204,15 @@ bool readStudentFile(const string &fileName, string username, string password, S
         size_t sizeUsername = *((size_t*)p);
         p+=sizeof(size_t);
 
-        string usernameString(p, sizeUsername);
-        p+=sizeUsername;
+        char* bufferUsername = new char[sizeUsername + 1];
+        
+        for (size_t i = 0; i < sizeUsername; ++i) {
+            bufferUsername[i] = *p++;
+        }
+        
+        bufferUsername[sizeUsername] = '\0';
+        string usernameString = bufferUsername;
+        delete[] bufferUsername;
 
         if(isExistCheck)
         {
@@ -184,8 +224,15 @@ bool readStudentFile(const string &fileName, string username, string password, S
         size_t sizePassword = *((size_t*)p);
         p += sizeof(size_t);
 
-        string passwordString(p, sizePassword);
-        p += sizePassword;
+        char* bufferPassword = new char[sizePassword + 1];
+        
+        for (size_t i = 0; i < sizePassword; ++i) {
+            bufferPassword[i] = *p++;
+        }
+        
+        bufferPassword[sizePassword] = '\0';
+        string passwordString = bufferPassword;
+        delete[] bufferPassword;
 
         //Check username and password
         if (usernameString == username && passwordString == password)
@@ -207,7 +254,7 @@ bool readStudentFile(const string &fileName, string username, string password, S
             student.setGpa(gpa);
             student.setSizeCourseStudent(sizeOfCourses);
             student.courseStudent = new Course[sizeOfCourses];
-            for(int i = 0; i<sizeOfCourses; i++)
+            for(unsigned int i = 0; i < sizeOfCourses; i++)
             {
                 int courseId = *((int*)p);
                 p+=sizeof(int);
@@ -216,10 +263,7 @@ bool readStudentFile(const string &fileName, string username, string password, S
             break;
         }
 
-            unsigned int id = *((unsigned int*)p);
             p += sizeof(int);
-
-            float gpa = *((float*)p);
             p += sizeof(float);
 
             unsigned int sizeOfCourses = *((unsigned int*)p);
@@ -256,25 +300,36 @@ Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent,
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
-            p+=sizeUsername;
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
 
             size_t sizePassword = *((size_t*)p);
             p += sizeof(size_t);
 
-            string passwordString(p, sizePassword);
-            p += sizePassword;
+            char* bufferPassword = new char[sizePassword + 1];
 
-            unsigned int id = *((unsigned int*)p);
+            for (size_t i = 0; i < sizePassword; ++i) {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
+
             p += sizeof(int);
-
-            float gpa = *((float*)p);
             p += sizeof(float);
 
             unsigned int sizeOfCourses = *((unsigned int*)p);
             p+=sizeof(unsigned int);
 
-            for(int i = 0; i<sizeOfCourses; i++)
+            for(unsigned int i = 0; i < sizeOfCourses; i++)
             {
                 int courseId = *((int*)p);
                 p+=sizeof(int);
@@ -293,29 +348,42 @@ Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent,
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
-            p+=sizeUsername;
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
 
             size_t sizePassword = *((size_t*)p);
             p += sizeof(size_t);
 
-            string passwordString(p, sizePassword);
-            p += sizePassword;
+            char* bufferPassword = new char[sizePassword + 1];
+
+            for (size_t i = 0; i < sizePassword; ++i) {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
 
             unsigned int id = *((unsigned int*)p);
             p += sizeof(int);
 
-            float gpa = *((float*)p);
             p += sizeof(float);
 
             unsigned int sizeOfCourses = *((unsigned int*)p);
             p+=sizeof(unsigned int);
             
-            for(int i = 0; i<sizeOfCourses; i++)
+            for(unsigned int i = 0; i < sizeOfCourses; i++)
             {
                 int courseId = *((int*)p);
                 p+=sizeof(int);
-                if(courseId = courseID)
+                if(courseId == courseID)
                 {
                     tab[indexStudent].setUsername(usernameString);
                     tab[indexStudent].setId(id);
@@ -333,6 +401,106 @@ Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent,
     return nullptr;
 }
 
+void removeStudent(const string &fileName, const string &username)
+{
+    ifstream file(fileName, ios::binary | ios::ate);
+    ofstream temp("temp.bin", ios::binary);
+
+    if(file.is_open() && temp.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char [fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = mBlock + fileSize;
+        
+        while(p < end)
+        {
+            size_t sizeUsername = *((size_t*)p);
+            p += sizeof(size_t);
+
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p += sizeof(size_t);
+
+            char* bufferPassword = new char[sizePassword + 1];
+
+            for(size_t i = 0; i < sizePassword; ++i)
+            {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCourses = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            Course* courses = new Course [sizeOfCourses];
+
+            for(unsigned int i = 0; i < sizeOfCourses; i++)
+            {
+                int id = *((int*)p);
+                p += sizeof(int);
+                courses[i].setId(id);
+            }
+
+            if(username != usernameString)
+            {
+                temp.write((char*)&sizeUsername, sizeof(size_t));
+                temp.write(usernameString.data(), sizeUsername);
+                temp.write((char*)&sizePassword, sizeof(size_t));
+                temp.write(passwordString.data(), sizePassword);
+                temp.write((char*)&id, sizeof(unsigned int));
+                temp.write((char*)&gpa, sizeof(float));
+                temp.write((char*)&sizeOfCourses, sizeof(unsigned int));
+
+                for(unsigned int i = 0; i < sizeOfCourses; i++)
+                {
+                    int courseID = courses[i].getId();
+                    temp.write((char*)&courseID, sizeof(int));
+                }
+            }
+        }
+
+        delete[] mBlock;
+        temp.close();
+
+        remove(fileName.data());
+        rename("temp.bin", fileName.data());
+    }
+
+    else
+    {
+        cout << "Files couldn't opened!" << endl;
+    }
+}
+
+
+void updateStudentCourse(Student &student)
+{
+    removeStudent("studentdb.bin", student.getUsername());
+    writeStudentFile("studentdb.bin", student);
+}
+
 void studentPanel(Student &student, bool &isSystemOpen)
 {
     cout << "******************************************" << endl;
@@ -340,20 +508,21 @@ void studentPanel(Student &student, bool &isSystemOpen)
     cout << "******************************************" << endl;
     cout << "1. View Courses" << endl;
     cout << "2. View Personal Information" << endl;
-    cout << "3. Back to main menu" << endl;
-    cout << "4. Exit the system" << endl;
+    cout << "3. Register to a course" << endl;
+    cout << "4. Back to main menu" << endl;
+    cout << "5. Exit the system" << endl;
 
     unsigned short number = 0;
     do
     {
-        cout << "Enter the yout choice: ";
+        cout << "Enter the your choice: ";
         cin >> number;
-    } while (number < 0  || number > 4);
+    } while (number < 0  || number > 5);
     
     if(number == 1)
     {
         cout << "Courses: " << endl;
-        for(int i = 0; i<student.getSizeCourseStudent(); i++)
+        for(unsigned int i = 0; i < student.getSizeCourseStudent(); i++)
         {
             cout << "Course ID: " << student.courseStudent[i].getId() << endl;
         }
@@ -370,15 +539,33 @@ void studentPanel(Student &student, bool &isSystemOpen)
 
     if(number == 3)
     {
+        int courseID;
 
+        cout << "Enter the course ID: ";
+        cin >> courseID;
+
+        Course course;
+        bool isExist = readCourseFile("coursedb.bin", courseID, course);
+
+        if(isExist)
+        {
+            student.registerToCourse(course);
+            updateStudentCourse(student);
+        }
+
+        else
+        {
+            cout << "This course doens't exist!" << endl;
+        }
+
+        return studentPanel(student, isSystemOpen);
     }
 
-    if(number == 4)
+    if(number == 5)
     {
         isSystemOpen = false;
     }
 }
-
 Student *readAllStudents(const string &fileName, int &numberOfStudent)
 {
     Student* tab;
@@ -399,19 +586,15 @@ Student *readAllStudents(const string &fileName, int &numberOfStudent)
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
             p+=sizeUsername;
 
             size_t sizePassword = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string passwordString(p, sizePassword);
             p+=sizePassword;
 
-            unsigned int id = *((unsigned int*)p);
             p += sizeof(int);
 
-            float gpa = *((float*)p);
             p += sizeof(float);
 
             unsigned int sizeOfCourses = *((unsigned int*)p);
@@ -431,14 +614,28 @@ Student *readAllStudents(const string &fileName, int &numberOfStudent)
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
-            p+=sizeUsername;
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
 
             size_t sizePassword = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string passwordString(p, sizePassword);
-            p+=sizePassword;
+            char* bufferPassword = new char[sizePassword + 1];
+
+            for (size_t i = 0; i < sizePassword; ++i) {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
 
             unsigned int id = *((unsigned int*)p);
             p += sizeof(int);
@@ -455,7 +652,7 @@ Student *readAllStudents(const string &fileName, int &numberOfStudent)
             tab[i].setGpa(gpa);
             tab[i].setSizeCourseStudent(sizeOfCourses);
             tab[i].courseStudent = new Course[sizeOfCourses];
-            for(int j = 0; j<sizeOfCourses; j++)
+            for(unsigned int j = 0; j < sizeOfCourses; j++)
             {
                 int id = *((int*)p);
                 p+=sizeof(int);

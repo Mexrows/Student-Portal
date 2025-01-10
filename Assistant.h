@@ -47,6 +47,7 @@ void writeAssistantFile(const string &fileName, Assistant assistant);
 bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant, bool isExistCheck);
 void assitantPanel(Assistant &assistant, bool &isSystemOpen);
 Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant);
+void removeAssistant(const string &fileName, const string &username);
 
 /*
     1.username
@@ -138,8 +139,15 @@ bool readAssistantFile(const string &fileName, string username, string password,
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
-            p+=sizeUsername;
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
 
             if(isExistCheck)
             {
@@ -151,8 +159,15 @@ bool readAssistantFile(const string &fileName, string username, string password,
             size_t sizePassword = *((size_t*)p);
             p += sizeof(size_t);
 
-            string passwordString(p, sizePassword);
-            p += sizePassword;
+            char* bufferPassword = new char[sizePassword + 1];
+
+            for (size_t i = 0; i < sizePassword; ++i) {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
 
             //Check username and password
             if (usernameString == username && passwordString == password)
@@ -295,32 +310,29 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
 
         while(p < end)
         {
+            if (p + sizeof(size_t) > end) 
+                break;
+
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
-            p+=sizeUsername;
+            p += sizeUsername; 
 
             size_t sizePassword = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string passwordString(p, sizePassword);
-            p+=sizePassword;
+            p += sizePassword;
 
-            unsigned int id = *((unsigned int*)p);
-            p += sizeof(int);
-
-            float gpa = *((float*)p);
+            p += sizeof(unsigned int);
             p += sizeof(float);
 
             unsigned int sizeOfCoursesProf = *((unsigned int*)p);
             p+=sizeof(unsigned int);
-
             p+=sizeOfCoursesProf * sizeof(int);
 
             unsigned int sizeOfCoursesStudent = *((unsigned int*)p);
-
             p+=sizeOfCoursesStudent * sizeof(int);
+
             numberOfAssistant++;
         }
 
@@ -334,14 +346,28 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string usernameString(p, sizeUsername);
-            p+=sizeUsername;
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
 
             size_t sizePassword = *((size_t*)p);
             p+=sizeof(size_t);
 
-            string passwordString(p, sizePassword);
-            p+=sizePassword;
+            char* bufferPassword = new char[sizePassword + 1];
+
+            for (size_t i = 0; i < sizePassword; ++i) {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
 
             unsigned int id = *((unsigned int*)p);
             p += sizeof(int);
@@ -364,7 +390,7 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
             p+=sizeof(unsigned int);
 
             tab[i].courseStudent = new Course[sizeOfCoursesStudent];
-            for(int j = 0; j<sizeOfCoursesStudent; j++)
+            for(unsigned int j = 0; j < sizeOfCoursesStudent; j++)
             {
                 int courseID = *((int*)p);
                 p+=sizeof(int);
@@ -384,5 +410,119 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
         cout << "Couldn't open the file!" << endl;
 
     return tab;
+}
+
+void removeAssistant(const string &fileName, const string &username)
+{
+    ifstream file(fileName, ios::binary | ios::ate);
+    ofstream temp("temp.bin", ios::binary);
+
+    if(file.is_open() && temp.is_open())
+    {
+        streampos fileSize = file.tellg();
+        file.seekg(0, ios::beg);
+        char* mBlock = new char [fileSize];
+        file.read(mBlock, fileSize);
+        file.close();
+        char* p = mBlock;
+        char* end = mBlock + fileSize;
+        
+        while(p < end)
+        {
+            size_t sizeUsername = *((size_t*)p);
+            p += sizeof(size_t);
+
+            char* bufferUsername = new char[sizeUsername + 1];
+        
+            for (size_t i = 0; i < sizeUsername; ++i) {
+                bufferUsername[i] = *p++;
+            }
+
+            bufferUsername[sizeUsername] = '\0';
+            string usernameString = bufferUsername;
+            delete[] bufferUsername;
+
+            size_t sizePassword = *((size_t*)p);
+            p += sizeof(size_t);
+
+            char* bufferPassword = new char[sizePassword + 1];
+
+            for(size_t i = 0; i < sizePassword; ++i)
+            {
+                bufferPassword[i] = *p++;
+            }
+
+            bufferPassword[sizePassword] = '\0';
+            string passwordString = bufferPassword;
+            delete[] bufferPassword;
+
+            unsigned int id = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            float gpa = *((float*)p);
+            p += sizeof(float);
+
+            unsigned int sizeOfCoursesProf = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+            Course* courseProf = new Course [sizeOfCoursesProf];
+
+            for(unsigned int i = 0; i < sizeOfCoursesProf; i++)
+            {
+                int courseID = *((int*)p);
+                p += sizeof(int);
+                courseProf[i].setId(courseID);
+            }
+
+            unsigned int sizeOfCourseStudent = *((unsigned int*)p);
+            p += sizeof(unsigned int);
+
+
+            Course* coursesStudent = new Course [sizeOfCourseStudent];
+
+            for(unsigned int i = 0; i < sizeOfCourseStudent; i++)
+            {
+                int id = *((int*)p);
+                p += sizeof(int);
+                coursesStudent[i].setId(id);
+            }
+
+            if(username != usernameString)
+            {
+                temp.write((char*)&sizeUsername, sizeof(size_t));
+                temp.write(usernameString.data(), sizeUsername);
+                temp.write((char*)&sizePassword, sizeof(size_t));
+                temp.write(passwordString.data(), sizePassword);
+                temp.write((char*)&id, sizeof(unsigned int));
+                temp.write((char*)&gpa, sizeof(float));
+                temp.write((char*)&sizeOfCoursesProf, sizeof(unsigned int));
+
+                for(unsigned int i = 0; i < sizeOfCoursesProf; i++)
+                {
+                    int courseID = courseProf[i].getId();
+                    temp.write((char*)&courseID, sizeof(int));
+                }
+
+                temp.write((char*)&sizeOfCourseStudent, sizeof(unsigned int));
+
+                for(unsigned int i = 0; i < sizeOfCourseStudent; i++)
+                {
+                    int courseID = coursesStudent[i].getId();
+                    temp.write((char*)&courseID, sizeof(int));
+                }
+            }
+        }
+
+        delete[] mBlock;
+        temp.close();
+
+        remove(fileName.data());
+        rename("temp.bin", fileName.data());
+    }
+
+    else
+    {
+        cout << "Files couldn't opened!" << endl;
+    }
 }
 #endif
