@@ -233,6 +233,8 @@ bool readStudentFile(const string &fileName, string username, string password, S
     }
     else
         cout << "Couldn't open the file!" << endl;
+
+    return false;
 }
 
 Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent, int courseID)
@@ -328,6 +330,7 @@ Student *readStudentFileForCourses(const string &fileName, int &numberOfStudent,
     else
         cout << "Couldn't open the file!" << endl;
 
+    return nullptr;
 }
 
 void studentPanel(Student &student, bool &isSystemOpen)

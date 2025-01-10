@@ -179,6 +179,8 @@ bool readProfessorFile(const string &fileName, string username, string password,
     }
     else
         cout << "Couldn't open the file!" << endl;
+
+    return false;
 }
 
 void professorPanel(Professor &professor, bool &isSystemOpen)

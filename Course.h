@@ -140,6 +140,8 @@ bool readCourseFile(const string &fileName, int id, Course &course)
     }
     else
         cout << "Couldn't open the file!" << endl;
+
+    return false;
 }
 
 void coursePanel()
