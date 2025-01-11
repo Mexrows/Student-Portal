@@ -1,93 +1,47 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include "Person.h"
-#include "Admin.h"
-#include "Assistant.h"
+#include <fstream>
 #include "Course.h"
+#include "Assistant.h"
+#include "Person.h"
 #include "Professor.h"
 #include "Student.h"
-using namespace std;
+#include "Admin.h"
+
+/*
+    The Admin username: admin
+    The Admin password: adminpw 
+
+    PLEASE: FIRST ADD THE COURSES OTHERWISE IT WILL NOT WORK
+            SECOND ADD THE PROFESSORS
+            THIRD ADD THE STUDENTS
+            FOURTH ADD THE ASSISTANTS
+*/
 
 void mainMenu(bool &isSystemOpen);
 void loginScreen(bool &isSystemOpen);
 
-/*
-Admin:
-username = admin
-password = adminpw
----------------------------
-Professor:
-username = prof1
-password = prof1pw
-courses = c++, python
-
-username = prof2
-password = prof2pw
-courses = java
----------------------------
-Assistant:
-username = assistant1
-password = assistant1pw
-id = 50
-gpa = 3.4
-asisst course = c++, python
-learn course = java
-
-username = assistant2
-password = assistant2pw
-id = 51
-gpa = 3.8
-asisst course = java
-learn course = c++
----------------------------
-Student:
-username = student1
-password = student1pw
-id = 1
-courses = c++, python
-gpa = 4.0
-
-username = student2
-password = student2pw
-id = 2
-courses = java
-gpa = 3.5
-
-username = student3
-password = student3pw
-id = 3
-courses = c++, java
-gpa = 3.0
----------------------------
-Courses:
-name = c++
-id = 1
-
-name = java
-id = 2
-
-name = python
-id = 3
-
-*/
-
 int main()
 {
-
-    writeFile("admindb.bin", "admin", "adminpw");
-
-    bool isSystemOpen = true;
-    mainMenu(isSystemOpen);
-
-    if(isSystemOpen)
+    try
     {
-        do
-        {
-            loginScreen(isSystemOpen);
-        } while (isSystemOpen);
-    }
+        writeAdmin("admindb.bin", "admin", "adminpw");
 
+        bool isSystemOpen = true;
+        mainMenu(isSystemOpen);
+
+        if(isSystemOpen)
+        {
+            do
+            {
+                loginScreen(isSystemOpen);
+            } while (isSystemOpen);
+        }
+    }
+    catch(const invalid_argument& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
 
     return 0;
 }
@@ -210,7 +164,7 @@ void loginScreen(bool &isSystemOpen)
             if(isExist)
             {
                 validLogin = true;
-                assitantPanel(assistant, isSystemOpen);
+                assistantPanel(assistant, isSystemOpen);
             }
             else
             {
@@ -262,12 +216,3 @@ void loginScreen(bool &isSystemOpen)
         isSystemOpen = false;
     }
 }
-
-
-
-
-
-
-
-
-            

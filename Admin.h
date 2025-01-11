@@ -1,11 +1,19 @@
 #ifndef ADMIN_H
 #define ADMIN_H
 #include "Person.h"
-#include "Course.h"
-#include "Professor.h"
-#include "Student.h"
-#include "Course.h"
 #include "Assistant.h"
+#include "Student.h"
+#include "Professor.h"
+#include "Course.h"
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std;
+
+/*
+    Admin class is inherited from Person class.
+    An admin have also a username and password.
+*/
 
 class Admin: public Person
 {
@@ -16,13 +24,34 @@ class Admin: public Person
     Admin(string, string);
 };
 
-Admin::Admin(string password, string username): Person(password, username)
+Admin::Admin():
+Person()
+{
+
+}
+
+Admin::~Admin()
+{
+
+}
+
+Admin::Admin(string password, string username): 
+Person(password, username)
 {
     
 };
 
-void writeFile(const string &fileName, string username, string password)
+Admin::Admin(const Admin &obj)
 {
+    
+}
+
+//An admin has to be in the database, otherwise the program doesn't work
+void writeAdmin(const string &fileName, string username, string password)
+{
+    /*We won't use ios::app, because admindb.bin fills with 
+    admin, adminpw whenever the program runs if we use it.*/
+
     ofstream file(fileName, ios::binary);
 
     if(file.is_open())
@@ -40,6 +69,13 @@ void writeFile(const string &fileName, string username, string password)
         cout << "Couldn't open the file!" << endl;
 }
 
+/*
+    1. Size of username (size_t)
+    2. Username (string)
+    3. Size of password (size_t)
+    4. Password (string)
+*/
+
 bool readFileAdmin(const string &fileName, string username, string password)
 {
     ifstream file(fileName, ios::binary | ios::ate);
@@ -51,13 +87,13 @@ bool readFileAdmin(const string &fileName, string username, string password)
         file.read(mBlock, fileSize);
         char *p = mBlock;
 
-        //Username
         size_t sizeUsername = *((size_t*)p);
         p+=sizeof(size_t);
 
         char* bufferUsername = new char[sizeUsername + 1];
         
-        for (size_t i = 0; i < sizeUsername; ++i) {
+        for (size_t i = 0; i < sizeUsername; ++i) 
+        {
             bufferUsername[i] = *p++;
         }
 
@@ -65,20 +101,19 @@ bool readFileAdmin(const string &fileName, string username, string password)
         string usernameString = bufferUsername;
         delete[] bufferUsername;
 
-        //Password
         size_t sizePassword = *((size_t*)p);
         p += sizeof(size_t);
 
         char* bufferPassword = new char[sizePassword + 1];
 
-        for (size_t i = 0; i < sizePassword; ++i) {
+        for (size_t i = 0; i < sizePassword; ++i) 
+        {
             bufferPassword[i] = *p++;
         }
         bufferPassword[sizePassword] = '\0';
         string passwordString = bufferPassword;
         delete[] bufferPassword;
 
-        //Check username and password
         bool isExist = false;
         if (usernameString == username && passwordString == password)
         {
@@ -96,6 +131,18 @@ bool readFileAdmin(const string &fileName, string username, string password)
     return false;
 }
 
+//For explanation, look at the adminPanel function
+void createFile(const string &filename)
+{
+    ofstream file(filename, ios::binary | ios::app);
+}
+
+/*
+    An admin can do these things using the panel:
+    1. Adding
+    2. Removing
+    3. Show all
+*/
 void adminPanel(bool &isSystemOpen)
 {
     cout << "******************************************" << endl;
@@ -118,13 +165,13 @@ void adminPanel(bool &isSystemOpen)
     
     do
     {
-        if(number > 9)
+        if(number > 12 || number < 1)
         {
             cout << "Enter the number between 1 and 12" << endl;
         }
         cout << "Enter the choice: ";
         cin >> number;
-    } while (number > 12);
+    } while (number > 12 || number < 1); //Please don't enter a invalid number, it won't work.
     
     if(number == 1)
     {
@@ -135,11 +182,15 @@ void adminPanel(bool &isSystemOpen)
         bool isExistCheck = true;
         bool isThereAnyCourse = false;
 
-        cin.ignore();
+        createFile("professordb.bin"); //If we don't create a file, we get "File couldn't opened"!
+
+        cin.ignore(); //Added because terminal is affected without it
         
         cout << "Enter the professor username: ";
         getline(cin, username);
         Professor temp;
+
+        //Checking if there is a professor with the same name
         isExistCheck = readProfessorFile("professordb.bin", username, password, temp, isExistCheck);
         if(isExistCheck)
         {
@@ -162,12 +213,14 @@ void adminPanel(bool &isSystemOpen)
                     cout << "Enter the " << i+1 << ". course id: ";
                     cin >> courseID;
 
-                    Course course;
-                    bool isThereAnyCourse = readCourseFile("coursedb.bin", courseID, course);
+                    Course course; 
+                    //Checking the written course is in the course database
+                    isThereAnyCourse = readCourseFile("coursedb.bin", courseID, course);
 
                     if(isThereAnyCourse)
                     {
-                        if(doesCourseHaveProfessor("professor.bin", courseID))
+                        //Checking the course is assigned to a professor
+                        if(doesCourseHaveProfessor("professordb.bin", courseID))
                         {
                             cout << "This course have a professor!" << endl;
                             isThereAnyCourse = false;
@@ -185,8 +238,9 @@ void adminPanel(bool &isSystemOpen)
             }
            
             Professor p1(password, username);
-            p1.courseProf = courses;
             p1.setSizeCourseProf(numberOfCourse);
+
+            p1.courseProf = courses;
 
             writeProfessorFile("professordb.bin", p1);
             adminPanel(isSystemOpen);
@@ -206,6 +260,8 @@ void adminPanel(bool &isSystemOpen)
         int id = 0;
         bool isExistCheck = true;
         bool isThereAnyCourse = false;
+
+        createFile("assistantdb.bin");
 
         cin.ignore();
 
@@ -284,6 +340,8 @@ void adminPanel(bool &isSystemOpen)
                     else
                     {
                         isConflict = false;
+
+                        //An assistant cannot teach and learn same course
                         for(unsigned int j = 0; j < numberOfCourseTeach; j++)
                         {
                             if(courseIDLearn == coursesTeach[j].getId())
@@ -303,11 +361,11 @@ void adminPanel(bool &isSystemOpen)
 
             Assistant a1(password, username, id, gpa);
 
-            a1.courseProf = coursesTeach;
             a1.setSizeCourseProf(numberOfCourseTeach);
+            a1.courseProf = coursesTeach;
 
-            a1.courseStudent = coursesLearn;
             a1.setSizeCourseStudent(numberOfCourseLearn);
+            a1.courseStudent= coursesLearn;
 
             writeAssistantFile("assistantdb.bin", a1);
             adminPanel(isSystemOpen);
@@ -325,6 +383,8 @@ void adminPanel(bool &isSystemOpen)
         int id = 0;
         bool isExistCheck = true;
         bool isThereAnyCourse = false;
+
+        createFile("studentdb.bin");
 
         cin.ignore();
         
@@ -382,8 +442,9 @@ void adminPanel(bool &isSystemOpen)
             }
            
             Student s1(password, username, id, gpa);
-            s1.courseStudent = courses;
             s1.setSizeCourseStudent(numberOfCourse);
+
+            s1.courseStudent = courses;
 
             writeStudentFile("studentdb.bin", s1);
             adminPanel(isSystemOpen);
@@ -395,6 +456,8 @@ void adminPanel(bool &isSystemOpen)
         string courseName;
         int id;
         bool isExistCheck = true;
+
+        createFile("coursedb.bin");
 
         cin.ignore();
 
@@ -438,7 +501,7 @@ void adminPanel(bool &isSystemOpen)
             adminPanel(isSystemOpen);
         }
 
-        adminPanel(isSystemOpen);
+        return adminPanel(isSystemOpen);
     }
 
     if(number == 6)
@@ -460,7 +523,7 @@ void adminPanel(bool &isSystemOpen)
             adminPanel(isSystemOpen);
         }
 
-        adminPanel(isSystemOpen);
+        return adminPanel(isSystemOpen);
     }
 
     if(number == 7)
@@ -482,7 +545,7 @@ void adminPanel(bool &isSystemOpen)
             adminPanel(isSystemOpen);
         }
 
-        adminPanel(isSystemOpen);
+        return adminPanel(isSystemOpen);
     }
 
     if(number == 8)
@@ -501,7 +564,7 @@ void adminPanel(bool &isSystemOpen)
         }
         cout << endl;
         delete[] allProfs;
-        adminPanel(isSystemOpen);
+        return adminPanel(isSystemOpen);
     }
 
     if(number == 9)
@@ -521,13 +584,13 @@ void adminPanel(bool &isSystemOpen)
             cout << "Teaching Courses: " << endl;
             for(unsigned int k = 0; k < allAssistants[i].getSizeCourseProf(); k++)
             {
-                cout << k+1 << ". Course ID: " << allAssistants[i].courseStudent[k].getId() << endl;
+                cout << k+1 << ". Course ID: " << allAssistants[i].courseProf[k].getId() << endl;
             }
             cout << "******************************************" << endl;
         }
         cout << endl;
         delete[] allAssistants;
-        adminPanel(isSystemOpen);
+        return adminPanel(isSystemOpen);
     }
 
     if(number == 10)
@@ -548,12 +611,12 @@ void adminPanel(bool &isSystemOpen)
         }
         cout << endl;
         delete[] allStudents;
-        adminPanel(isSystemOpen);
+        return adminPanel(isSystemOpen);
     }
 
     if(number == 11)
     {
-        cout << endl << endl;
+        return;
     }
 
     if(number == 12)

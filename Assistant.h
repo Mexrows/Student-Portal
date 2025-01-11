@@ -1,7 +1,19 @@
-#ifndef ASISTANT_H
-#define ASISTANT_H
+#ifndef ASSISTANT_H
+#define ASSISTANT_H
 #include "Professor.h"
 #include "Student.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+/*
+    The Assistant class is inherited from Student and Professor.
+    This is called multiple inheritance.
+    An assistant include these informations: username, password,
+    student id, gpa, size of student course, student courses,
+    size of professor course and professor courses.
+*/
 
 class Assistant: public Student, public Professor
 {   
@@ -13,6 +25,7 @@ class Assistant: public Student, public Professor
 };
 
 Assistant::Assistant()
+:Student(), Professor()
 {
 }
 
@@ -43,21 +56,17 @@ Assistant::Assistant(string password, string username, unsigned int id, float gp
 
 };
 
-void writeAssistantFile(const string &fileName, Assistant assistant);
-bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant, bool isExistCheck);
-void assitantPanel(Assistant &assistant, bool &isSystemOpen);
-Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant);
-void removeAssistant(const string &fileName, const string &username);
-
 /*
-    1.username
-    2.password
-    3.id
-    4.gpa
-    5.sizeOfCoursesProf
-    6.Course ID Prof
-    7.sizeOfCoursesStudent
-    8.Course ID Student
+    1. Size of username (size_t)
+    2. Username (string)
+    3. Size of password (size_t)
+    4. Password (string)
+    5. Student ID (unsigned int)
+    6. GPA (float)
+    7. Size of Professor Courses (unsigned int)
+    8. Professor Courses (unsigned int)
+    9. Size of Student Courses (unsigned int)
+    10. Student Courses (unsigned int)
 */
 
 void writeAssistantFile(const string &fileName, Assistant assistant)
@@ -66,6 +75,12 @@ void writeAssistantFile(const string &fileName, Assistant assistant)
 
     if(file.is_open())
     {
+        /*
+            Assistant is created from multiple inheritance.
+            Therefore, assistant have actually two username as a professor and a student.
+            If we write assistant.getUsername(), the compiler cannot decide which getUsername().
+            That's why, the scope resolution operator is used.
+        */
         size_t size = assistant.Student::getUsername().size();
         file.write((char*)&size, sizeof(size_t));
         file.write(assistant.Student::getUsername().data(), size);
@@ -87,7 +102,7 @@ void writeAssistantFile(const string &fileName, Assistant assistant)
         for(unsigned int i = 0; i < sizeCourseProf; i++)
         {
             courseIDProf = assistant.courseProf[i].getId();
-            file.write((char*)&courseIDProf, sizeof(int));
+            file.write((char*)&courseIDProf, sizeof(unsigned int));
         }
 
         unsigned int sizeCourseStudent = assistant.getSizeCourseStudent();
@@ -97,7 +112,7 @@ void writeAssistantFile(const string &fileName, Assistant assistant)
         for(unsigned int i = 0; i < sizeCourseStudent; i++)
         {
             courseIDStudent = assistant.courseStudent[i].getId();
-            file.write((char*)&courseIDStudent, sizeof(int));
+            file.write((char*)&courseIDStudent, sizeof(unsigned int));
         }
 
 
@@ -108,17 +123,6 @@ void writeAssistantFile(const string &fileName, Assistant assistant)
     else
         cout << "Couldn't open the file!" << endl;
 }
-
-/*
-    1.username
-    2.password
-    3.id
-    4.gpa
-    5.sizeOfCoursesProf
-    6.Course ID Prof
-    7.sizeOfCoursesStudent
-    8.Course ID Student
-*/
 
 bool readAssistantFile(const string &fileName, string username, string password, Assistant &assistant, bool isExistCheck)
 {
@@ -141,8 +145,9 @@ bool readAssistantFile(const string &fileName, string username, string password,
 
             char* bufferUsername = new char[sizeUsername + 1];
         
-            for (size_t i = 0; i < sizeUsername; ++i) {
-                bufferUsername[i] = *p++;
+            for (size_t i = 0; i < sizeUsername; ++i) 
+            {
+                bufferUsername[i] = *(p++);
             }
 
             bufferUsername[sizeUsername] = '\0';
@@ -155,21 +160,20 @@ bool readAssistantFile(const string &fileName, string username, string password,
                     return isExistCheck;
             }
 
-            //Password
             size_t sizePassword = *((size_t*)p);
             p += sizeof(size_t);
 
             char* bufferPassword = new char[sizePassword + 1];
 
-            for (size_t i = 0; i < sizePassword; ++i) {
-                bufferPassword[i] = *p++;
+            for (size_t i = 0; i < sizePassword; ++i) 
+            {
+                bufferPassword[i] = *(p++);
             }
 
             bufferPassword[sizePassword] = '\0';
             string passwordString = bufferPassword;
             delete[] bufferPassword;
 
-            //Check username and password
             if (usernameString == username && passwordString == password)
             {
                 isExist = true;
@@ -192,8 +196,8 @@ bool readAssistantFile(const string &fileName, string username, string password,
 
                 for(unsigned int i = 0; i < sizeCoursesProf; i++)
                 {
-                    int courseID = *((int*)p);
-                    p += sizeof(int);
+                    unsigned int courseID = *((unsigned int*)p);
+                    p += sizeof(unsigned int);
 
                     assistant.courseProf[i].setId(courseID);
                 }
@@ -206,8 +210,8 @@ bool readAssistantFile(const string &fileName, string username, string password,
 
                 for(unsigned int i = 0; i < sizeCoursesStudent; i++)
                 {
-                    int courseID = *((int*)p);
-                    p += sizeof(int);
+                    unsigned int courseID = *((unsigned int*)p);
+                    p += sizeof(unsigned int);
 
                     assistant.courseStudent[i].setId(courseID);
                 }
@@ -220,11 +224,11 @@ bool readAssistantFile(const string &fileName, string username, string password,
 
             unsigned int sizeCoursesProf = *((unsigned int*)p);
             p += sizeof(unsigned int);
-            p += sizeCoursesProf * sizeof(int);
+            p += sizeCoursesProf * sizeof(unsigned int);
 
             unsigned int sizeCoursesStudent = *((unsigned int*)p);
             p += sizeof(unsigned int);
-            p += sizeCoursesStudent * sizeof(int);
+            p += sizeCoursesStudent * sizeof(unsigned int);
 
         }
 
@@ -240,62 +244,10 @@ bool readAssistantFile(const string &fileName, string username, string password,
     }
 }
 
-void assitantPanel(Assistant &assistant, bool &isSystemOpen)
-{
-    cout << "******************************************" << endl;
-    cout << "Welcome to Assistant Panel!" << endl;
-    cout << "******************************************" << endl;
-    cout << "1. View Courses" << endl;
-    cout << "2. View Personal Information" << endl;
-    cout << "3. Back to main menu" << endl;
-    cout << "4. Exit the system" << endl;
-
-    unsigned short number = 0;
-    do
-    {
-        cout << "Enter the your choice: ";
-        cin >> number;
-    } while (number > 4);
-    
-    if(number == 1)
-    {
-        cout << "Courses that you learn: " << endl;
-        for(unsigned int i = 0; i < assistant.getSizeCourseStudent(); i++)
-        {
-            cout << "Course ID: " << assistant.courseStudent[i].getId() << endl;
-        }
-
-        cout << "Courses that you teach: " << endl;
-        for(unsigned int i = 0; i < assistant.getSizeCourseProf(); i++)
-        {
-            cout << "Course ID: " << assistant.courseProf[i].getId() << endl;
-        }
-
-        return assitantPanel(assistant, isSystemOpen);
-    }
-
-    if(number == 2)
-    {
-        cout << "Assistant ID: " << assistant.getId() << endl;
-        cout << "Assistant Username: " << assistant.Student::getUsername() << endl;
-        cout << "Student GPA: " << assistant.getGpa() << endl;
-        return assitantPanel(assistant, isSystemOpen);
-    }
-
-    if(number == 3)
-    {
-
-    }
-
-    if(number == 4)
-    {
-        isSystemOpen = false;
-    }
-}
-
 Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
 {
     Assistant* tab = nullptr;
+    numberOfAssistant = 0;
 
     ifstream file(fileName, ios::binary | ios::ate);
     if(file.is_open())
@@ -310,13 +262,10 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
 
         while(p < end)
         {
-            if (p + sizeof(size_t) > end) 
-                break;
-
             size_t sizeUsername = *((size_t*)p);
             p+=sizeof(size_t);
 
-            p += sizeUsername; 
+            p += sizeUsername;
 
             size_t sizePassword = *((size_t*)p);
             p+=sizeof(size_t);
@@ -327,10 +276,11 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
             p += sizeof(float);
 
             unsigned int sizeOfCoursesProf = *((unsigned int*)p);
-            p+=sizeof(unsigned int);
+            p+=sizeof(unsigned int); //I appreciate it to my friend from here. He forgot it and I struugled with it for 2 hours.
             p+=sizeOfCoursesProf * sizeof(int);
 
             unsigned int sizeOfCoursesStudent = *((unsigned int*)p);
+            p+=sizeof(unsigned int);
             p+=sizeOfCoursesStudent * sizeof(int);
 
             numberOfAssistant++;
@@ -340,7 +290,7 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
         end = fileSize + mBlock;
         tab = new Assistant[numberOfAssistant];
 
-        for(int i = 0; i<numberOfAssistant; i++)
+        for(int i = 0; i < numberOfAssistant; i++)
         {
            
             size_t sizeUsername = *((size_t*)p);
@@ -348,8 +298,8 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
 
             char* bufferUsername = new char[sizeUsername + 1];
         
-            for (size_t i = 0; i < sizeUsername; ++i) {
-                bufferUsername[i] = *p++;
+            for (size_t j = 0; j < sizeUsername; ++j) {
+                bufferUsername[j] = *(p++);
             }
 
             bufferUsername[sizeUsername] = '\0';
@@ -361,8 +311,8 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
 
             char* bufferPassword = new char[sizePassword + 1];
 
-            for (size_t i = 0; i < sizePassword; ++i) {
-                bufferPassword[i] = *p++;
+            for (size_t j = 0; j < sizePassword; ++j) {
+                bufferPassword[j] = *p++;
             }
 
             bufferPassword[sizePassword] = '\0';
@@ -370,7 +320,7 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
             delete[] bufferPassword;
 
             unsigned int id = *((unsigned int*)p);
-            p += sizeof(int);
+            p += sizeof(unsigned int);
 
             float gpa = *((float*)p);
             p += sizeof(float);
@@ -381,8 +331,8 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
             tab[i].courseProf = new Course[sizeOfCoursesProf];
             for(unsigned int j = 0; j < sizeOfCoursesProf; j++)
             {
-                int courseID = *((int*)p);
-                p += sizeof(int);
+                unsigned int courseID = *((unsigned int*)p);
+                p += sizeof(unsigned int);
                 tab[i].courseProf[j].setId(courseID);
             }
 
@@ -392,8 +342,8 @@ Assistant* readAllAssistants(const string &fileName, int &numberOfAssistant)
             tab[i].courseStudent = new Course[sizeOfCoursesStudent];
             for(unsigned int j = 0; j < sizeOfCoursesStudent; j++)
             {
-                int courseID = *((int*)p);
-                p+=sizeof(int);
+                unsigned int courseID = *((unsigned int*)p);
+                p+=sizeof(unsigned int);
                 tab[i].courseStudent[j].setId(courseID);
             }
 
@@ -469,8 +419,8 @@ void removeAssistant(const string &fileName, const string &username)
 
             for(unsigned int i = 0; i < sizeOfCoursesProf; i++)
             {
-                int courseID = *((int*)p);
-                p += sizeof(int);
+                unsigned int courseID = *((unsigned int*)p);
+                p += sizeof(unsigned int);
                 courseProf[i].setId(courseID);
             }
 
@@ -482,7 +432,7 @@ void removeAssistant(const string &fileName, const string &username)
 
             for(unsigned int i = 0; i < sizeOfCourseStudent; i++)
             {
-                int id = *((int*)p);
+                unsigned int id = *((unsigned int*)p);
                 p += sizeof(int);
                 coursesStudent[i].setId(id);
             }
@@ -500,7 +450,7 @@ void removeAssistant(const string &fileName, const string &username)
                 for(unsigned int i = 0; i < sizeOfCoursesProf; i++)
                 {
                     int courseID = courseProf[i].getId();
-                    temp.write((char*)&courseID, sizeof(int));
+                    temp.write((char*)&courseID, sizeof(unsigned int));
                 }
 
                 temp.write((char*)&sizeOfCourseStudent, sizeof(unsigned int));
@@ -508,7 +458,7 @@ void removeAssistant(const string &fileName, const string &username)
                 for(unsigned int i = 0; i < sizeOfCourseStudent; i++)
                 {
                     int courseID = coursesStudent[i].getId();
-                    temp.write((char*)&courseID, sizeof(int));
+                    temp.write((char*)&courseID, sizeof(unsigned int));
                 }
             }
         }
@@ -525,4 +475,63 @@ void removeAssistant(const string &fileName, const string &username)
         cout << "Files couldn't opened!" << endl;
     }
 }
+
+/*
+    An assistant panel:
+    1. Viewing Student and Professor Courses
+    2. For username and gpa and student ID
+*/
+void assistantPanel(Assistant &assistant, bool &isSystemOpen)
+{
+    cout << "******************************************" << endl;
+    cout << "Welcome to Assistant Panel!" << endl;
+    cout << "******************************************" << endl;
+    cout << "1. View Courses" << endl;
+    cout << "2. View Personal Information" << endl;
+    cout << "3. Back to main menu" << endl;
+    cout << "4. Exit the system" << endl;
+
+    unsigned short number = 0;
+    do
+    {
+        cout << "Enter the your choice: ";
+        cin >> number;
+    } while (number > 4);
+    
+    if(number == 1)
+    {
+        cout << "Courses that you learn: " << endl;
+        for(unsigned int i = 0; i < assistant.getSizeCourseStudent(); i++)
+        {
+            cout << "Course ID: " << assistant.courseStudent[i].getId() << endl;
+        }
+
+        cout << "Courses that you teach: " << endl;
+        for(unsigned int i = 0; i < assistant.getSizeCourseProf(); i++)
+        {
+            cout << "Course ID: " << assistant.courseProf[i].getId() << endl;
+        }
+
+        return assistantPanel(assistant, isSystemOpen);
+    }
+
+    if(number == 2)
+    {
+        cout << "Assistant ID: " << assistant.getId() << endl;
+        cout << "Assistant Username: " << assistant.Student::getUsername() << endl;
+        cout << "Student GPA: " << assistant.getGpa() << endl;
+        return assistantPanel(assistant, isSystemOpen);
+    }
+
+    if(number == 3)
+    {
+
+    }
+
+    if(number == 4)
+    {
+        isSystemOpen = false;
+    }
+}
+
 #endif

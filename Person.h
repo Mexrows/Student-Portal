@@ -1,6 +1,8 @@
 #ifndef PERSON_H
 #define PERSON_H
 #include <string>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 class Person
@@ -15,13 +17,12 @@ class Person
     Person(string, string);
     Person(const Person &obj);
     ~Person();
+
+    //Setters and Getters
     void setPassword(string password);
     void setUsername(string username);
     string getPassword();
     string getUsername();
-
-    //Helper Functions
-    bool login(); //Login
 };
 
 Person::Person()
@@ -66,35 +67,5 @@ string Person::getUsername()
 {
     return this->username;
 }
-
-bool Person::login()
-{
-    string logName;
-    string logPassword;
-
-    cout << "Enter your username: ";
-    getline(cin, logName);
-
-    cout << "Enter your password: ";
-    getline(cin, logPassword);
-
-    bool verified = true;
-
-    if(logName != this->username)
-    {
-        verified = false;
-        return verified;
-    }
-
-    if(logPassword != this->password)
-    {
-        verified = false;
-        return verified;
-    }
-
-    return verified;
-    
-}
-
 
 #endif
